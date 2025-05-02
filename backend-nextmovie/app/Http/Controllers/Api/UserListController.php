@@ -3,47 +3,37 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\UserList;
 use Illuminate\Http\Request;
 
 class UserListController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return UserList::all();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    public function show($id)
+    {
+        return UserList::findOrFail($id);
+    }
+
     public function store(Request $request)
     {
-        //
+        $list = UserList::create($request->all());
+        return response()->json($list, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $list = UserList::findOrFail($id);
+        $list->update($request->all());
+        return response()->json($list, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy($id)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        UserList::destroy($id);
+        return response()->json(null, 204);
     }
 }
