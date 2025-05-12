@@ -176,7 +176,7 @@ Here are the Postman tests for each CRUD operation:
 
 ```json
 {
-"name": "Juan Updated"
+"name": "Samuel Actualizado"
 }
 ```
 
