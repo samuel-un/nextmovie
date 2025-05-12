@@ -6,7 +6,6 @@ const showIcon =
 const hideIcon =
 	"https://res.cloudinary.com/dgbngcvkl/image/upload/v1747038594/ocultar_obev4s.png";
 
-// Función para validar contraseña segura
 function isPasswordSecure(password) {
 	const minLength = 8;
 	const hasUpper = /[A-Z]/.test(password);
@@ -22,7 +21,6 @@ function isPasswordSecure(password) {
 	);
 }
 
-// Validación básica de email
 function isValidEmail(email) {
 	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -40,7 +38,6 @@ export default function RegisterForm() {
 	const [error, setError] = useState("");
 	const [success, setSuccess] = useState("");
 
-	// Limpiar mensajes al cambiar campos
 	const handleChange = (e) => {
 		const { name, value, type, checked } = e.target;
 		setForm((prev) => ({
@@ -55,41 +52,35 @@ export default function RegisterForm() {
 		e.preventDefault();
 		setError("");
 		setSuccess("");
-
 		if (
 			!form.fullName ||
 			!form.email ||
 			!form.password ||
 			!form.repeatPassword
 		) {
-			setError("Por favor completa todos los campos.");
+			setError("Please fill in all fields.");
 			return;
 		}
-
 		if (!isValidEmail(form.email)) {
-			setError("Introduce un email válido.");
+			setError("Please enter a valid email.");
 			return;
 		}
-
 		if (!isPasswordSecure(form.password)) {
 			setError(
-				"La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un símbolo."
+				"Password must be at least 8 characters, contain an uppercase letter, a lowercase letter, a number, and a symbol."
 			);
 			return;
 		}
-
 		if (form.password !== form.repeatPassword) {
-			setError("Las contraseñas no coinciden.");
+			setError("Passwords do not match.");
 			return;
 		}
 		if (!form.terms) {
 			setError(
-				"Debes aceptar los Términos y Condiciones y la Política de Privacidad."
+				"You must accept the Terms and Conditions and the Privacy Policy."
 			);
 			return;
 		}
-
-		// ENVÍA LOS DATOS AL BACKEND
 		try {
 			const response = await fetch("http://localhost:8000/api/users", {
 				method: "POST",
@@ -102,7 +93,6 @@ export default function RegisterForm() {
 					password: form.password,
 				}),
 			});
-
 			if (!response.ok) {
 				let data = {};
 				try {
@@ -110,12 +100,11 @@ export default function RegisterForm() {
 				} catch {}
 				setError(
 					data.message ||
-						"Hubo un error al crear el usuario. Revisa los datos e inténtalo de nuevo."
+						"There was an error creating the user. Please check your data and try again."
 				);
 				return;
 			}
-
-			setSuccess("¡Cuenta creada con éxito!");
+			setSuccess("Account created successfully!");
 			setForm({
 				fullName: "",
 				email: "",
@@ -124,7 +113,7 @@ export default function RegisterForm() {
 				terms: false,
 			});
 		} catch (err) {
-			setError("No se pudo conectar con el servidor.");
+			setError("Could not connect to the server.");
 		}
 	};
 
@@ -176,17 +165,15 @@ export default function RegisterForm() {
 							onClick={() => setShowPassword((v) => !v)}
 							tabIndex={0}
 							aria-label={
-								showPassword
-									? "Ocultar contraseña"
-									: "Mostrar contraseña"
+								showPassword ? "Hide password" : "Show password"
 							}
 						>
 							<img
 								src={showPassword ? hideIcon : showIcon}
 								alt={
 									showPassword
-										? "Ocultar contraseña"
-										: "Mostrar contraseña"
+										? "Hide password"
+										: "Show password"
 								}
 							/>
 						</button>
@@ -207,16 +194,16 @@ export default function RegisterForm() {
 							tabIndex={0}
 							aria-label={
 								showRepeatPassword
-									? "Ocultar contraseña"
-									: "Mostrar contraseña"
+									? "Hide password"
+									: "Show password"
 							}
 						>
 							<img
 								src={showRepeatPassword ? hideIcon : showIcon}
 								alt={
 									showRepeatPassword
-										? "Ocultar contraseña"
-										: "Mostrar contraseña"
+										? "Hide password"
+										: "Show password"
 								}
 							/>
 						</button>
@@ -243,8 +230,7 @@ export default function RegisterForm() {
 				<div className="signin-section">
 					<hr className="divider" />
 					<div className="signin-link">
-						Already have an account? <br />
-						<a href="/login">Sign in →</a>
+						Already have an account? <a href="/login"> <br />Sign in →</a>
 					</div>
 				</div>
 			</form>

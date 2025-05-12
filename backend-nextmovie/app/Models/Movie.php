@@ -19,19 +19,16 @@ class Movie extends Model
         'release_date',
     ];
 
-    // Una película puede tener muchas valoraciones
     public function ratings()
     {
         return $this->hasMany(Rating::class, 'movie_id', 'id_tmdb');
     }
 
-    // Una película puede tener muchos comentarios
     public function comments()
     {
         return $this->hasMany(Comment::class, 'movie_id', 'id_tmdb');
     }
 
-    // Una película puede estar en muchos elementos de listas
     public function userListItems()
     {
         return $this->hasMany(UserListItem::class, 'movie_id', 'id_tmdb');

@@ -16,13 +16,11 @@ class Rating extends Model
         'rated_at',
     ];
 
-    // Una valoración pertenece a un usuario
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Una valoración pertenece a una película
     public function movie()
     {
         return $this->belongsTo(Movie::class, 'movie_id', 'id_tmdb');

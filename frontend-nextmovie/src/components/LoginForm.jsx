@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./RegisterForm.css"; // Reutiliza el mismo CSS que el registro
+import "./RegisterForm.css";
 
 const showIcon =
 	"https://res.cloudinary.com/dgbngcvkl/image/upload/v1747038594/mostrar_aeuvx0.png";
@@ -35,7 +35,6 @@ export default function LoginForm() {
 			setError("Please fill in all fields.");
 			return;
 		}
-
 		try {
 			const response = await fetch("http://localhost:8000/api/login", {
 				method: "POST",
@@ -47,7 +46,6 @@ export default function LoginForm() {
 					password: form.password,
 				}),
 			});
-
 			if (!response.ok) {
 				let data = {};
 				try {
@@ -59,11 +57,9 @@ export default function LoginForm() {
 				);
 				return;
 			}
-
 			setSuccess("Login successful!");
-			// Redirige a la ruta principal tras el login
 			setTimeout(() => {
-				navigate("/home"); // Cambia "/" por la ruta que quieras tras login
+				navigate("/home");
 			}, 900);
 			setForm({
 				email: "",
@@ -91,7 +87,7 @@ export default function LoginForm() {
 						<input
 							type="text"
 							name="email"
-							placeholder="Email"
+							placeholder="Username or Email"
 							value={form.email}
 							onChange={handleChange}
 							autoComplete="username"
@@ -137,8 +133,12 @@ export default function LoginForm() {
 				</button>
 				<hr className="divider" />
 				<div className="signin-link">
-					Don't have an account?{" "}
-					<br/><a href="/register" style={{ color: "#b86cff" }}>
+					Don't have an account?
+					<a
+						href="/register"
+						style={{ color: "#b86cff", marginLeft: 4 }}
+					>
+						<br />
 						Create an account →
 					</a>
 				</div>
