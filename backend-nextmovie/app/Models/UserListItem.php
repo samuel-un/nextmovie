@@ -15,13 +15,11 @@ class UserListItem extends Model
         'added_at',
     ];
 
-    // Un elemento de lista pertenece a una lista
     public function list()
     {
         return $this->belongsTo(UserList::class, 'list_id');
     }
 
-    // Un elemento de lista pertenece a una película
     public function movie()
     {
         return $this->belongsTo(Movie::class, 'movie_id', 'id_tmdb');

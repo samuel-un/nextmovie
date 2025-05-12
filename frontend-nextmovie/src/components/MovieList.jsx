@@ -19,18 +19,21 @@ const MovieList = () => {
 			});
 	}, []);
 
-	if (loading) return <div>Loading...</div>;
-	if (error) return <div style={{ color: "red" }}>Error: {error}</div>;
+	if (loading) return <div>Loading movies...</div>;
+	if (error) return <div>Error: {error}</div>;
 
 	return (
-		<div>
-			<h2>Movies</h2>
+		<div className="movie-list">
+			<h2>Movie List</h2>
 			{movies.length === 0 ? (
 				<div>No movies found.</div>
 			) : (
 				<ul>
 					{movies.map((movie) => (
-						<li key={movie.id_tmdb || movie.id}>{movie.title}</li>
+						<li key={movie.id}>
+							<strong>{movie.title}</strong>
+							{movie.year && <> ({movie.year})</>}
+						</li>
 					))}
 				</ul>
 			)}

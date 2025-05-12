@@ -16,13 +16,11 @@ class Comment extends Model
         'commented_at',
     ];
 
-    // Un comentario pertenece a un usuario
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Un comentario pertenece a una película
     public function movie()
     {
         return $this->belongsTo(Movie::class, 'movie_id', 'id_tmdb');

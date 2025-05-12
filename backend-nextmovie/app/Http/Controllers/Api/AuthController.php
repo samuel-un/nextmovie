@@ -11,7 +11,6 @@ use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
-    // Registro de usuario
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -38,7 +37,6 @@ class AuthController extends Controller
         ], 201);
     }
 
-    // Login de usuario
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
@@ -53,14 +51,12 @@ class AuthController extends Controller
         ]);
     }
 
-    // Logout de usuario
     public function logout()
     {
         auth()->logout();
         return response()->json(['message' => 'Successfully logged out']);
     }
 
-    // Refrescar token
 	public function refresh()
 	{
 		return response()->json([

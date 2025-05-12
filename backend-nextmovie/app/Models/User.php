@@ -19,7 +19,6 @@ class User extends Authenticatable implements JWTSubject
         'registration_date',
     ];
 
-    // Relaciones Eloquent
     public function ratings()
     {
         return $this->hasMany(Rating::class);
@@ -35,7 +34,6 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(UserList::class);
     }
 
-    // Métodos JWT
     public function getJWTIdentifier()
     {
         return $this->getKey();

@@ -15,13 +15,11 @@ class UserList extends Model
         'description',
     ];
 
-    // Una lista pertenece a un usuario
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Una lista puede tener muchos elementos
     public function items()
     {
         return $this->hasMany(UserListItem::class, 'list_id');

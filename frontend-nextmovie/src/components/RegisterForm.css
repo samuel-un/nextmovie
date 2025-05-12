@@ -50,7 +50,7 @@ html,
 	width: 100%;
 	display: flex;
 	flex-direction: column;
-	gap: 1.1rem; /* espacio entre campos */
+	gap: 1.1rem;
 	margin-bottom: 1.2rem;
 }
 
@@ -183,12 +183,12 @@ html,
 
 @media (max-width: 600px) {
 	.register-form {
-		max-width: 350px; /* más pequeño, más espacio a los lados */
-		padding: 2rem 1.5rem 1.5rem 1.5rem; /* más espacio lateral */
+		max-width: 350px;
+		padding: 2rem 1.5rem 1.5rem 1.5rem;
 		border-radius: 24px;
 	}
 	.logo {
-		width: 100px; /* logo más grande en móvil */
+		width: 100px;
 		top: -80px;
 	}
 	.input-wrapper {
