@@ -183,11 +183,28 @@ html,
 
 @media (max-width: 600px) {
 	.register-form {
-		max-width: 97vw;
-		padding: 2.2rem 0.7rem 1.3rem;
+		max-width: 350px; /* más pequeño, más espacio a los lados */
+		padding: 2rem 1.5rem 1.5rem 1.5rem; /* más espacio lateral */
+		border-radius: 24px;
 	}
 	.logo {
-		width: 80px;
-		top: -55px;
+		width: 100px; /* logo más grande en móvil */
+		top: -80px;
+	}
+	.input-wrapper {
+		padding: 0.8rem 1rem;
+	}
+	.input-wrapper input {
+		font-size: 1rem;
+	}
+	.create-account {
+		padding: 0.8rem;
+		font-size: 1rem;
+	}
+	.terms {
+		font-size: 0.85rem;
+	}
+	.signin-link {
+		font-size: 0.9rem;
 	}
 }
