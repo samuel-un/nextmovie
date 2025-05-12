@@ -4,26 +4,34 @@
 
 <h1>🎬 NextMovie - Your Movie & Series Manager Platform 🍿</h1>
 
-NextMovie is a **Laravel-based** web application backend that allows users to manage their favorite movies and TV shows, including functionalities such as user management, personalized lists, and recommendations. The backend is designed to be robust, scalable, and easy to integrate with the frontend platform.
+NextMovie is a **full-stack web application platform** that allows users to manage their favorite movies and TV shows, including functionalities such as user management, personalized lists, and recommendations.
+
+This repository contains the **Laravel-based backend**, designed to be robust, scalable, and easy to integrate with the frontend application (built with React).
 
 <h1>📌 Features</h1>
 
 -   👤 **User management (CRUD)** for creating, updating, and deleting user profiles.
 -   🔒 **JWT Authentication** for secure user login and registration.
--   📝 **Custom lists** for favorite movies and series (Frontend integration).
+-   📝 **Custom lists** for favorite movies and series (integrated with frontend).
 -   ⭐ **Rating and Recommendations system** (Planned).
--   📦 **API Consumption** of TMDb (The Movie Database) for movie and series data (Frontend integration).
+-   📦 **API Consumption** of TMDb (The Movie Database) for movie and series data (integrated with frontend).
 -   🗄 **Database migrations and seeders** for easy setup and testing.
 -   🛠 **Built with Laravel**, using routes, controllers, models, and API resources.
 
 <h1>⚙️ Technologies Used</h1>
 
--   Laravel
+-   Laravel (Backend)
 -   PHP
 -   MySQL
 -   Postman (for API testing)
 -   JWT (JSON Web Tokens)
 -   The Movie Database (TMDb) API (Frontend integration)
+-   React (Frontend, in a separate repository)
+
+---
+
+> **Note:**  
+> This repository contains only the backend. The frontend is developed separately and connects to this API.
 
 <h1>🔧 Installation</h1>
 
