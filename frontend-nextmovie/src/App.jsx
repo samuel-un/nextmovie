@@ -1,12 +1,5 @@
-import MovieList from "./components/MovieList";
-
+import RegisterForm from "./components/RegisterForm";
 function App() {
-	return (
-		<div>
-			<h1>NextMovie</h1>
-			<MovieList />
-		</div>
-	);
+	return <RegisterForm />;
 }
-
 export default App;
