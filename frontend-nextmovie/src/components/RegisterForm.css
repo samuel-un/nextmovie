@@ -1,0 +1,193 @@
+@import url("https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;700&display=swap");
+
+* {
+	box-sizing: border-box;
+}
+
+body,
+html,
+#root {
+	height: 100%;
+	margin: 0;
+	font-family: "Fira Mono", "Consolas", "Menlo", monospace;
+	background: #060d17;
+}
+
+.register-bg {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 100vh;
+	background: #060d17;
+}
+
+.register-form {
+	position: relative;
+	background: #44326b;
+	border-radius: 32px;
+	padding: 3.5rem 2rem 2.5rem;
+	width: 100%;
+	max-width: 430px;
+	box-shadow: 0 8px 32px rgba(31, 38, 135, 0.25);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.logo {
+	position: absolute;
+	top: -85px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 110px;
+	background: #060d17;
+	padding: 0.5rem;
+	border-radius: 16px;
+	box-shadow: 0 4px 16px rgba(31, 38, 135, 0.15);
+}
+
+.inputs-section {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 1.1rem; /* espacio entre campos */
+	margin-bottom: 1.2rem;
+}
+
+.input-wrapper {
+	position: relative;
+	background: #b0b0b0;
+	border-radius: 13px;
+	padding: 1.1rem 1.2rem;
+}
+
+.input-wrapper input {
+	width: 100%;
+	border: none;
+	background: transparent;
+	font-family: inherit;
+	font-size: 1.08rem;
+	font-weight: 700;
+	color: #222;
+	outline: none;
+}
+
+.input-wrapper input::placeholder {
+	color: #222;
+	opacity: 1;
+	font-weight: 700;
+}
+
+.toggle-password-btn {
+	position: absolute;
+	right: 0.7rem;
+	top: 50%;
+	transform: translateY(-50%);
+	background: none;
+	border: none;
+	cursor: pointer;
+}
+
+.toggle-password-btn img {
+	width: 28px;
+	height: 28px;
+	filter: invert(18%) sepia(19%) saturate(1043%) hue-rotate(223deg)
+		brightness(97%) contrast(93%);
+}
+
+.terms {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	font-size: 0.93rem;
+	color: #b0b0b0;
+	margin-bottom: 1.2rem;
+}
+
+.terms input {
+	accent-color: #9f42c6;
+	margin-right: 0.6rem;
+	width: 1.05rem;
+	height: 1.05rem;
+}
+
+.terms a {
+	color: #9f42c6;
+	text-decoration: underline;
+	font-weight: 700;
+}
+
+.create-account {
+	width: 100%;
+	padding: 1.1rem;
+	background: #9f42c6;
+	color: #fff;
+	border: none;
+	border-radius: 14px;
+	font-size: 1.12rem;
+	font-weight: 700;
+	margin-bottom: 2.2rem;
+	cursor: pointer;
+	transition: background 0.2s;
+	letter-spacing: 0.01em;
+}
+
+.create-account:hover {
+	background: #7c2eb2;
+}
+
+.error,
+.success {
+	width: 100%;
+	padding: 0.6rem 1rem;
+	border-radius: 9px;
+	margin-bottom: 1rem;
+	text-align: center;
+	font-weight: 500;
+	font-family: inherit;
+}
+
+.error {
+	background: #ed1c24;
+	color: #fff;
+}
+
+.success {
+	background: #060d17;
+	color: #fff;
+}
+
+.signin-section {
+	width: 100%;
+	text-align: center;
+}
+
+.divider {
+	border: none;
+	border-top: 2px solid #b0b0b0;
+	margin: 0 0 1.2rem;
+}
+
+.signin-link {
+	font-size: 1.05rem;
+	color: #fff;
+	font-family: inherit;
+}
+
+.signin-link a {
+	color: #9f42c6;
+	text-decoration: underline;
+	font-weight: 700;
+	margin-left: 0.2rem;
+}
+
+@media (max-width: 600px) {
+	.register-form {
+		max-width: 97vw;
+		padding: 2.2rem 0.7rem 1.3rem;
+	}
+	.logo {
+		width: 80px;
+		top: -55px;
+	}
+}

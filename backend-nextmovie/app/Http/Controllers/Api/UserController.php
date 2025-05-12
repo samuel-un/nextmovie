@@ -8,15 +8,17 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function index()
-    {
-        return User::all();
-    }
+	public function index()
+	{
+		$users = User::all();
+		return response()->json($users, 200);
+	}
 
-    public function show($id)
-    {
-        return User::findOrFail($id);
-    }
+	public function show($id)
+	{
+		$user = User::findOrFail($id);
+		return response()->json($user, 200);
+	}
 
     public function store(Request $request)
     {
