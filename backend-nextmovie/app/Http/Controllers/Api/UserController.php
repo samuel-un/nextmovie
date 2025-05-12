@@ -20,18 +20,26 @@ class UserController extends Controller
 		return response()->json($user, 200);
 	}
 
-    public function store(Request $request)
-    {
-        $user = User::create($request->all());
-        return response()->json($user, 201);
-    }
+	public function store(Request $request)
+	{
+		$data = $request->all();
+		$data['password'] = bcrypt($data['password']);
+		$user = User::create($data);
+		return response()->json($user, 201);
+	}
+
 
     public function update(Request $request, $id)
-    {
-        $user = User::findOrFail($id);
-        $user->update($request->all());
-        return response()->json($user, 200);
-    }
+	{
+		$user = User::findOrFail($id);
+		$data = $request->all();
+		if (isset($data['password'])) {
+			$data['password'] = bcrypt($data['password']);
+		}
+		$user->update($data);
+		return response()->json($user, 200);
+	}
+
 
     public function destroy($id)
     {
