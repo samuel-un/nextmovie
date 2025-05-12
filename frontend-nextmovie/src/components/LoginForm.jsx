@@ -138,8 +138,8 @@ export default function LoginForm() {
 				<hr className="divider" />
 				<div className="signin-link">
 					Don't have an account?{" "}
-					<br/><a href="#" style={{ color: "#b86cff" }}>
-						Create an account
+					<br/><a href="/register" style={{ color: "#b86cff" }}>
+						Create an account →
 					</a>
 				</div>
 			</form>
