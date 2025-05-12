@@ -244,7 +244,7 @@ export default function RegisterForm() {
 					<hr className="divider" />
 					<div className="signin-link">
 						Already have an account? <br />
-						<a href="#">Sign in →</a>
+						<a href="/login">Sign in →</a>
 					</div>
 				</div>
 			</form>
