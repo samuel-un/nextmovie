@@ -1,4 +1,3 @@
-
 <p align="center">
 <img src="https://res.cloudinary.com/dgbngcvkl/image/upload/v1747036873/NextMovie_logo_letras_y_icono_axjmma.png" alt="NextMovie Logo">
 </p>
@@ -13,30 +12,31 @@ This repository contains both the **Laravel-based backend** and the **React-base
 
 <h1>📌 Features</h1>
 
-- 👤 **User management (CRUD)** for creating, updating, and deleting user profiles.
-- 🔒 **JWT Authentication** for secure user login and registration.
-- 📝 **Custom lists** for favorite movies and series.
-- ⭐ **Rating and Recommendations system** (Planned).
-- 🎥 **API Consumption** of TMDb (The Movie Database) for movie and series data.
-- 🗄 **Database migrations and seeders** for easy setup and testing.
-- 🛠 **Built with Laravel & React**, using routes, controllers, models, API resources, and modern React components.
+-   👤 **User management (CRUD)** for creating, updating, and deleting user profiles.
+-   🔒 **JWT Authentication** for secure user login and registration.
+-   📝 **Custom lists** for favorite movies and series.
+-   ⭐ **Rating and Recommendations system** (Planned).
+-   🎥 **API Consumption** of TMDb (The Movie Database) for movie and series data.
+-   🗄 **Database migrations and seeders** for easy setup and testing.
+-   🛠 **Built with Laravel & React**, using routes, controllers, models, API resources, and modern React components.
 
 ---
 
 <h1>⚙️ Technologies Used</h1>
 
-- **Backend**:
-  - Laravel (PHP)
-  - MySQL
-  - JWT (JSON Web Tokens)
-  - Postman (for API testing)
+-   **Backend**:
 
-- **Frontend**:
-  - React (Vite)
-  - JavaScript (ES6+)
-  - CSS Modules
-  - Axios (API requests)
-  - React Router
+    -   Laravel (PHP)
+    -   MySQL
+    -   JWT (JSON Web Tokens)
+    -   Postman (for API testing)
+
+-   **Frontend**:
+    -   React (Vite)
+    -   JavaScript (ES6+)
+    -   CSS Modules
+    -   Axios (API requests)
+    -   React Router
 
 ---
 
@@ -79,20 +79,22 @@ php artisan serve
 The frontend for **NextMovie** is a fully responsive React application that connects seamlessly to the backend API. It provides users with an intuitive and visually appealing interface to manage their favorite movies and TV shows.
 
 **Key features:**
-- User registration and login with real-time validation and password security checks
-- JWT authentication integrated with the backend
-- Custom movie and series lists for each user
-- Responsive design for both desktop and mobile (based on Figma design)
-- Error and success messages for all user actions
-- Movie list component connected to the API
-- Navigation between login and registration using React Router
+
+-   User registration and login with real-time validation and password security checks
+-   JWT authentication integrated with the backend
+-   Custom movie and series lists for each user
+-   Responsive design for both desktop and mobile (based on Figma design)
+-   Error and success messages for all user actions
+-   Movie list component connected to the API
+-   Navigation between login and registration using React Router
 
 **Technologies:**
-- React (Vite)
-- JavaScript (ES6+)
-- CSS Modules
-- Axios (for API requests)
-- React Router
+
+-   React (Vite)
+-   JavaScript (ES6+)
+-   CSS Modules
+-   Axios (for API requests)
+-   React Router
 
 **Repository:**  
 The frontend code is available in the [`frontend-nextmovie`](./frontend-nextmovie) folder of this repository.
@@ -138,17 +140,17 @@ Here are the Postman tests for each CRUD operation:
 
 ### 1. Create User (POST `/api/users`)
 
-- **Request JSON:**
+-   **Request JSON:**
 
 ```json
 {
-"name": "Samuel",
-"email": "Samuel@email.com",
-"password": "123456"
+	"name": "Samuel",
+	"email": "Samuel@email.com",
+	"password": "123456"
 }
 ```
 
-- **Expected response:** Status **201** and created user data.
+-   **Expected response:** Status **201** and created user data.
 
 ![Create user](https://res.cloudinary.com/dgbngcvkl/image/upload/v1747036150/Crear_usuario_joxmtr.png)
 
@@ -156,7 +158,7 @@ Here are the Postman tests for each CRUD operation:
 
 ### 2. List all Users (GET `/api/users`)
 
-- **Expected response:** Status **200** and array of users.
+-   **Expected response:** Status **200** and array of users.
 
 ![List users](https://res.cloudinary.com/dgbngcvkl/image/upload/v1747036151/Listar_usuarios_fwyt2f.png)
 
@@ -164,7 +166,7 @@ Here are the Postman tests for each CRUD operation:
 
 ### 3. View a Specific User (GET `/api/users/{id}`)
 
-- **Expected response:** Status **200** and user data.
+-   **Expected response:** Status **200** and user data.
 
 ![View user](https://res.cloudinary.com/dgbngcvkl/image/upload/v1747036151/Ver_usuario_hvj3bh.png)
 
@@ -172,15 +174,15 @@ Here are the Postman tests for each CRUD operation:
 
 ### 4. Update User (PUT `/api/users/{id}`)
 
-- **Request JSON:**
+-   **Request JSON:**
 
 ```json
 {
-"name": "Samuel Actualizado"
+	"name": "Samuel Actualizado"
 }
 ```
 
-- **Expected response:** Status **200** and updated data.
+-   **Expected response:** Status **200** and updated data.
 
 ![Update user](https://res.cloudinary.com/dgbngcvkl/image/upload/v1747036150/Actualizar_usuario_zbtpll.png)
 
@@ -188,9 +190,37 @@ Here are the Postman tests for each CRUD operation:
 
 ### 5. Delete User (DELETE `/api/users/{id}`)
 
-- **Expected response:** Status **204** and no content.
+-   **Expected response:** Status **204** and no content.
 
 ![Delete user](https://res.cloudinary.com/dgbngcvkl/image/upload/v1747036150/Eliminar_usuario_eolnkq.png)
+
+---
+
+<h1>✅ Test Coverage Report</h1>
+
+To ensure code quality and reliability, I implemented unit and integration tests for both the backend (Laravel/PHPUnit) and frontend (React/Vitest).
+
+### 🔍 How to run tests and check coverage
+
+#### 🧪 Backend (PHPUnit)
+
+```bash
+php ./vendor/bin/phpunit --coverage-text
+```
+
+📸 **Coverage result (Backend)**
+<img src="https://res.cloudinary.com/dgbngcvkl/image/upload/v1747740318/tests-backend_opfeeb.png" alt="Backend Coverage" width="800"/>
+
+#### 💻 Frontend (Vitest)
+
+```bash
+npx vitest run --coverage
+```
+
+📸 **Coverage result (Frontend)**
+<img src="https://res.cloudinary.com/dgbngcvkl/image/upload/v1747740318/tests-frontend_tyxta1.png" alt="Frontend Coverage" width="800"/>
+
+> ✅ The project currently meets the **minimum 60% coverage** for the backend and frontend codebases.
 
 ---
 
