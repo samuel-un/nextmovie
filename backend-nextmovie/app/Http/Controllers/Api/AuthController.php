@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -20,7 +20,7 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            throw new ValidationException($validator);
         }
 
         $user = User::create([
@@ -57,10 +57,10 @@ class AuthController extends Controller
         return response()->json(['message' => 'Successfully logged out']);
     }
 
-	public function refresh()
-	{
-		return response()->json([
-			'token' => auth('api')->refresh(),
-		]);
-	}	
+    public function refresh()
+    {
+        return response()->json([
+            'token' => auth('api')->refresh(),
+        ]);
+    }	
 }
