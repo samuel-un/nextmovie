@@ -57,9 +57,12 @@ export default function LoginForm() {
 				);
 				return;
 			}
+			const data = await response.json();
+			// Guarda el token JWT en localStorage
+			localStorage.setItem("jwt_token", data.token);
 			setSuccess("Login successful!");
 			setTimeout(() => {
-				navigate("/home");
+				navigate("/");
 			}, 900);
 			setForm({
 				email: "",
