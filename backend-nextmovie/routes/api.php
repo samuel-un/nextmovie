@@ -1,29 +1,11 @@
 <?php
 
+// routes/api.php
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 
-Route::get('/test', function () {
-    return response()->json(['message' => '¡Funciona la API de Laravel!']);
+Route::group(['middleware' => ['cors']], function () {
+    Route::post('/auth/register', [AuthController::class, 'register']);
+    Route::post('/auth/login', [AuthController::class, 'login']);
+    Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+    Route::get('/auth/me', [AuthController::class, 'me'])->middleware('auth:sanctum');
 });
-
-use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\Api\MovieController;
-use App\Http\Controllers\Api\RatingController;
-use App\Http\Controllers\Api\CommentController;
-use App\Http\Controllers\Api\UserListController;
-use App\Http\Controllers\Api\UserListItemController;
-
-Route::apiResource('users', UserController::class);
-Route::apiResource('movies', MovieController::class);
-Route::apiResource('ratings', RatingController::class);
-Route::apiResource('comments', CommentController::class);
-Route::apiResource('user-lists', UserListController::class);
-Route::apiResource('user-list-items', UserListItemController::class);
-
-use App\Http\Controllers\Api\AuthController;
-
-Route::post('register', [AuthController::class, 'register']);
-Route::post('login', [AuthController::class, 'login']);
-Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:api');
-Route::post('refresh', [AuthController::class, 'refresh'])->middleware('auth:api');

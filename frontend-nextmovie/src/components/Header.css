@@ -11,27 +11,32 @@
 }
 
 .nm-header {
+	background-color: var(--navy);
 	padding: 0.1rem 2rem;
 	border-radius: 1.5rem;
 	margin: 1.5rem auto 0 auto;
 	max-width: 1800px;
 	width: 95vw;
 	box-sizing: border-box;
+	position: relative;
+	z-index: 10;
 }
 
-.nm-header__logo-link,
-.nm-header__user-area,
-.nm-header__button {
-	min-width: 180px;
-	display: flex;
-	justify-content: center;
+.nm-header__white-bar {
+	background-color: var(--white);
+	height: 4rem;
+	width: 100%;
+	position: absolute;
+	bottom: -4rem;
+	left: 0;
+	border-radius: 0 0 1.5rem 1.5rem;
 }
 
 .nm-header__container {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 6rem;
+	gap: 4rem;
 	width: 100%;
 }
 
@@ -74,7 +79,6 @@
 	color: var(--white);
 	font-size: 1.1rem;
 	font-family: "Fira Mono", "Consolas", monospace;
-	font-weight: 400;
 	letter-spacing: 0.05em;
 	outline: none;
 	transition: box-shadow 0.2s;
@@ -82,7 +86,6 @@
 
 .nm-header__search-input::placeholder {
 	color: var(--gray-2);
-	opacity: 1;
 }
 
 .nm-header__button {
@@ -121,8 +124,8 @@
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-	width: 2.2rem;
-	height: 1.5rem;
+	width: 2.4rem;
+	height: 1.6rem;
 	background: none;
 	border: none;
 	cursor: pointer;
@@ -132,10 +135,10 @@
 .nm-header__bar {
 	display: block;
 	width: 100%;
-	height: 4px;
+	height: 5px;
 	background-color: var(--purple-dark);
 	border-radius: 2px;
-	margin: 2px 0;
+	margin: 3px 0;
 }
 
 .nm-header__dropdown {
@@ -144,12 +147,22 @@
 	right: 0;
 	background-color: var(--navy);
 	border-radius: 0.5rem;
-	overflow: hidden;
 	box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
-	display: flex;
+	display: none;
 	flex-direction: column;
 	min-width: 180px;
 	z-index: 100;
+	opacity: 0;
+	transform: translateY(-10px);
+	transition: opacity 0.3s ease, transform 0.3s ease;
+	pointer-events: none;
+}
+
+.nm-header__dropdown--open {
+	display: flex;
+	opacity: 1;
+	transform: translateY(0);
+	pointer-events: auto;
 }
 
 .nm-header__dropdown-link {
@@ -169,6 +182,7 @@
 	background-color: var(--gray-1);
 }
 
+/* Responsive ajustes menores */
 @media (max-width: 965px) {
 	.nm-header__button {
 		font-size: 0.95rem;

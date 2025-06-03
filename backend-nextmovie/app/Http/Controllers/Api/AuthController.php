@@ -6,22 +6,18 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
-use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
     public function register(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
+{
+    try {
+        $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
         ]);
-
-        if ($validator->fails()) {
-            throw new ValidationException($validator);
-        }
 
         $user = User::create([
             'name' => $request->name,
@@ -29,40 +25,55 @@ class AuthController extends Controller
             'password' => bcrypt($request->password),
         ]);
 
-        $token = JWTAuth::fromUser($user);
+        Auth::login($user);
+        $request->session()->regenerate();
 
         return response()->json([
-            'user' => $user,
-            'token' => $token,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ],
+            'message' => 'Usuario creado y autenticado correctamente',
         ], 201);
+    } catch (\Exception $e) {
+        // Devolver error detallado para depuración
+        return response()->json([
+            'error' => 'Error al registrar usuario',
+            'message' => $e->getMessage(),
+        ], 500);
     }
+}
+
 
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
 
-        if (!$token = JWTAuth::attempt($credentials)) {
-            return response()->json(['error' => 'Invalid credentials'], 401);
+        if (!Auth::attempt($credentials)) {
+            return response()->json(['error' => 'Credenciales inválidas'], 401);
         }
 
+        $request->session()->regenerate();
+
         return response()->json([
-            'token' => $token,
-            'user' => auth()->user(),
+            'user' => Auth::user(),
+            'message' => 'Login exitoso',
         ]);
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
-        auth()->logout();
-        return response()->json(['message' => 'Successfully logged out']);
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return response()->json(['message' => 'Logout exitoso']);
     }
 
-public function refresh()
-{
-    return response()->json([
-        'token' => auth('api')->refresh(),
-        'user' => auth()->user(),
-    ]);
-}
-	
+    public function me(Request $request)
+    {
+        return response()->json(Auth::user());
+    }
 }

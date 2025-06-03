@@ -1,10 +1,13 @@
 import React, { useState } from "react";
+import { useAuthStore } from "../store/useAuthStore";
+import { useNavigate } from "react-router-dom";
 import "./RegisterForm.css";
 
 const showIcon =
 	"https://res.cloudinary.com/dgbngcvkl/image/upload/v1747038594/mostrar_aeuvx0.png";
 const hideIcon =
 	"https://res.cloudinary.com/dgbngcvkl/image/upload/v1747038594/ocultar_obev4s.png";
+const API_URL = "http://localhost:8000";
 
 function isPasswordSecure(password) {
 	const minLength = 8;
@@ -35,8 +38,10 @@ export default function RegisterForm() {
 	});
 	const [showPassword, setShowPassword] = useState(false);
 	const [showRepeatPassword, setShowRepeatPassword] = useState(false);
-	const [error, setError] = useState("");
+
+	const { register, error: storeError, loading } = useAuthStore();
 	const [success, setSuccess] = useState("");
+	const navigate = useNavigate();
 
 	const handleChange = (e) => {
 		const { name, value, type, checked } = e.target;
@@ -44,77 +49,44 @@ export default function RegisterForm() {
 			...prev,
 			[name]: type === "checkbox" ? checked : value,
 		}));
-		setError("");
 		setSuccess("");
 	};
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		setError("");
-		setSuccess("");
+
 		if (
 			!form.fullName ||
 			!form.email ||
 			!form.password ||
 			!form.repeatPassword
 		) {
-			setError("Please fill in all fields.");
 			return;
 		}
+
 		if (!isValidEmail(form.email)) {
-			setError("Please enter a valid email.");
 			return;
 		}
+
 		if (!isPasswordSecure(form.password)) {
-			setError(
-				"Password must be at least 8 characters, contain an uppercase letter, a lowercase letter, a number, and a symbol."
-			);
 			return;
 		}
+
 		if (form.password !== form.repeatPassword) {
-			setError("Passwords do not match.");
 			return;
 		}
+
 		if (!form.terms) {
-			setError(
-				"You must accept the Terms and Conditions and the Privacy Policy."
-			);
 			return;
 		}
-		try {
-			const response = await fetch("http://localhost:8000/api/users", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					name: form.fullName,
-					email: form.email,
-					password: form.password,
-				}),
-			});
-			if (!response.ok) {
-				let data = {};
-				try {
-					data = await response.json();
-				} catch {}
-				setError(
-					data.message ||
-						"There was an error creating the user. Please check your data and try again."
-				);
-				return;
-			}
-			setSuccess("Account created successfully!");
-			setForm({
-				fullName: "",
-				email: "",
-				password: "",
-				repeatPassword: "",
-				terms: false,
-			});
-		} catch (err) {
-			setError("Could not connect to the server.");
-		}
+
+		await register({
+			name: form.fullName,
+			email: form.email,
+			password: form.password,
+			password_confirmation: form.repeatPassword,
+		});
+		navigate("/");
 	};
 
 	return (
@@ -163,18 +135,13 @@ export default function RegisterForm() {
 							type="button"
 							className="toggle-password-btn"
 							onClick={() => setShowPassword((v) => !v)}
-							tabIndex={0}
 							aria-label={
 								showPassword ? "Hide password" : "Show password"
 							}
 						>
 							<img
 								src={showPassword ? hideIcon : showIcon}
-								alt={
-									showPassword
-										? "Hide password"
-										: "Show password"
-								}
+								alt="Toggle password"
 							/>
 						</button>
 					</div>
@@ -191,7 +158,6 @@ export default function RegisterForm() {
 							type="button"
 							className="toggle-password-btn"
 							onClick={() => setShowRepeatPassword((v) => !v)}
-							tabIndex={0}
 							aria-label={
 								showRepeatPassword
 									? "Hide password"
@@ -200,11 +166,7 @@ export default function RegisterForm() {
 						>
 							<img
 								src={showRepeatPassword ? hideIcon : showIcon}
-								alt={
-									showRepeatPassword
-										? "Hide password"
-										: "Show password"
-								}
+								alt="Toggle password"
 							/>
 						</button>
 					</div>
@@ -222,15 +184,19 @@ export default function RegisterForm() {
 						the <a href="#">Privacy Policy</a>
 					</label>
 				</div>
-				{error && <div className="error">{error}</div>}
+				{storeError && <div className="error">{storeError}</div>}
 				{success && <div className="success">{success}</div>}
-				<button type="submit" className="create-account">
-					Create Account
+				<button
+					type="submit"
+					className="create-account"
+					disabled={loading}
+				>
+					{loading ? "Creating Account..." : "Create Account"}
 				</button>
 				<div className="signin-section">
 					<hr className="divider" />
 					<div className="signin-link">
-						Already have an account? <a href="/login"> <br />Sign in →</a>
+						Already have an account? <a href="/login">Sign in →</a>
 					</div>
 				</div>
 			</form>

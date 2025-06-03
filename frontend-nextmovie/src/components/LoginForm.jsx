@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/useAuthStore";
 import "./RegisterForm.css";
 
 const showIcon =
@@ -8,6 +9,7 @@ const hideIcon =
 	"https://res.cloudinary.com/dgbngcvkl/image/upload/v1747038594/ocultar_obev4s.png";
 
 export default function LoginForm() {
+	const login = useAuthStore((state) => state.login);
 	const [form, setForm] = useState({
 		email: "",
 		password: "",
@@ -36,40 +38,14 @@ export default function LoginForm() {
 			return;
 		}
 		try {
-			const response = await fetch("http://localhost:8000/api/login", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					email: form.email,
-					password: form.password,
-				}),
-			});
-			if (!response.ok) {
-				let data = {};
-				try {
-					data = await response.json();
-				} catch {}
-				setError(
-					data.message ||
-						"Login failed. Please check your credentials and try again."
-				);
-				return;
-			}
-			const data = await response.json();
-			// Guarda el token JWT en localStorage
-			localStorage.setItem("jwt_token", data.token);
+			await login(form.email, form.password);
 			setSuccess("Login successful!");
+			setForm({ email: "", password: "" });
 			setTimeout(() => {
 				navigate("/");
 			}, 900);
-			setForm({
-				email: "",
-				password: "",
-			});
 		} catch (err) {
-			setError("Could not connect to the server.");
+			setError(err.message || "Login failed. Please try again.");
 		}
 	};
 
@@ -138,7 +114,7 @@ export default function LoginForm() {
 				<div className="signin-link">
 					Don't have an account?
 					<a
-						href="/register"
+						href="/user-register"
 						style={{ color: "#b86cff", marginLeft: 4 }}
 					>
 						<br />
