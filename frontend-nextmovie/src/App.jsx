@@ -4,6 +4,7 @@ import LoginForm from "./components/LoginForm";
 import RegisterForm from "./components/RegisterForm";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import Landing from "./components/Landing";
 import { useAuthStore } from "./store/useAuthStore";
 
 function PublicRoute({ children }) {
@@ -35,8 +36,7 @@ function AppContent() {
 						</PublicRoute>
 					}
 				/>
-				<Route path="/" />
-				{}
+				<Route path="/" element={<Landing />} />{" "}
 			</Routes>
 			<Footer />
 		</>

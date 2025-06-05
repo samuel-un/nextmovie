@@ -95,7 +95,7 @@ body {
 .nm-header__search-icon svg {
 	width: clamp(14px, 2vw, 18px) !important;
 	height: clamp(14px, 2vw, 18px) !important;
-	display: block; /* para evitar espacio extra debajo */
+	display: block;
 }
 
 .nm-header__search-input {
@@ -213,9 +213,6 @@ body {
 	background-color: var(--gray-1);
 }
 
-/* ------------------ MEDIA QUERIES ------------------ */
-
-/* Pantallas entre 965px y 280px */
 @media (max-width: 965px) and (min-width: 280px) {
 	.nm-header {
 		padding: 0.6rem 1rem;
@@ -237,23 +234,16 @@ body {
 		font-size: clamp(0.45rem, 2vw, 0.85rem);
 	}
 
-	/* Icono lupa escalable */
 	.nm-header__search-icon {
 		font-size: clamp(0.45rem, 2vw, 0.85rem);
-		/* Si es imagen, usar width/height en vez de font-size */
-		/* width: clamp(14px, 2vw, 18px);
-    height: clamp(14px, 2vw, 18px); */
 	}
 
-	@media (max-width: 965px) and (min-width: 280px) {
-		.nm-header__search-icon svg {
-			width: clamp(14px, 2vw, 18px) !important;
-			height: clamp(14px, 2vw, 18px) !important;
-		}
+	.nm-header__search-icon svg {
+		width: clamp(14px, 2vw, 18px) !important;
+		height: clamp(14px, 2vw, 18px) !important;
 	}
 }
 
-/* Pantallas hasta 300px */
 @media (max-width: 300px) {
 	.nm-header {
 		border-radius: 0 0 1rem 1rem;
@@ -301,12 +291,8 @@ body {
 		transform: translateX(-50%);
 		min-width: 160px;
 	}
-
-	/* Icono lupa pequeño */
 	.nm-header__search-icon {
 		font-size: 0.6rem;
-		/* width: 14px;
-    height: 14px; */
 	}
 	.nm-header__search-icon svg {
 		width: 14px !important;

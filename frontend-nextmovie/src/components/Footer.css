@@ -69,11 +69,11 @@ body {
 }
 
 .footer-icon {
-	width: clamp(20px, 5vw, 56px); /* Más pequeño que antes */
+	width: clamp(20px, 5vw, 56px);
 	height: clamp(20px, 5vw, 56px);
 	background: #fff;
 	border-radius: 12px;
-	padding: clamp(2px, 1vw, 8px); /* padding adaptativo */
+	padding: clamp(2px, 1vw, 8px);
 	object-fit: contain;
 	transition: box-shadow 0.2s;
 	flex-shrink: 0;
