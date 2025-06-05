@@ -1,0 +1,84 @@
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+}
+
+.footer {
+	background: #060d17;
+	color: #fff;
+	font-family: "Fira Mono", "Consolas", "Courier New", monospace;
+	width: 100vw;
+	overflow-x: auto;
+}
+
+.footer-inner {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 24px;
+	min-height: 120px;
+	gap: clamp(12px, 2vw, 32px);
+	white-space: nowrap;
+	overflow-x: auto;
+}
+
+.footer-left,
+.footer-right {
+	display: flex;
+	align-items: center;
+	gap: clamp(8px, 1.8vw, 32px);
+	min-width: 0;
+}
+
+.footer-logo {
+	width: clamp(24px, 5vw, 56px);
+	height: auto;
+	flex-shrink: 0;
+}
+
+.footer-copy,
+.footer-dev {
+	font-size: clamp(0.4rem, 1.8vw, 1.5rem);
+	font-weight: 600;
+	white-space: nowrap;
+	text-align: center;
+	max-width: 100%;
+	overflow: visible;
+	text-overflow: unset;
+}
+
+.footer-divider {
+	width: 2px;
+	height: clamp(40px, 10vw, 90px);
+	background: #fff;
+	opacity: 0.4;
+	flex-shrink: 0;
+}
+
+.footer-icons {
+	display: flex;
+	gap: clamp(6px, 1.5vw, 24px);
+	flex-wrap: nowrap;
+	align-items: center;
+	flex-shrink: 1;
+}
+
+.footer-icon {
+	width: clamp(20px, 5vw, 56px); /* Más pequeño que antes */
+	height: clamp(20px, 5vw, 56px);
+	background: #fff;
+	border-radius: 12px;
+	padding: clamp(2px, 1vw, 8px); /* padding adaptativo */
+	object-fit: contain;
+	transition: box-shadow 0.2s;
+	flex-shrink: 0;
+}
+
+.footer-icon:hover {
+	box-shadow: 0 0 0 3px #fff2, 0 2px 8px #0004;
+}

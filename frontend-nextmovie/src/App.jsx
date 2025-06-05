@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import LoginForm from "./components/LoginForm";
 import RegisterForm from "./components/RegisterForm";
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 import { useAuthStore } from "./store/useAuthStore";
 
 function PublicRoute({ children }) {
@@ -37,6 +38,7 @@ function AppContent() {
 				<Route path="/" />
 				{}
 			</Routes>
+			<Footer />
 		</>
 	);
 }
