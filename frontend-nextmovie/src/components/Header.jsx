@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, createSearchParams } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import "./Header.css";
 
@@ -7,7 +7,18 @@ export default function Header() {
 	const user = useAuthStore((state) => state.user);
 	const logout = useAuthStore((state) => state.logout);
 	const [menuOpen, setMenuOpen] = useState(false);
+	const [search, setSearch] = useState("");
 	const navigate = useNavigate();
+
+	const handleSearch = (e) => {
+		e.preventDefault();
+		if (!search.trim()) return;
+		navigate({
+			pathname: "/search-results",
+			search: `?${createSearchParams({ query: search })}`,
+		});
+		setSearch("");
+	};
 
 	return (
 		<header className="nm-header">
@@ -19,8 +30,7 @@ export default function Header() {
 						alt="NextMovie logo"
 					/>
 				</Link>
-
-				<div className="nm-header__search">
+				<form className="nm-header__search" onSubmit={handleSearch}>
 					<span className="nm-header__search-icon">
 						<svg
 							width="22"
@@ -37,16 +47,17 @@ export default function Header() {
 					<input
 						className="nm-header__search-input"
 						type="text"
-						placeholder="Búsqueda de Películas o Series"
+						placeholder="Search for Movies or Series"
+						value={search}
+						onChange={(e) => setSearch(e.target.value)}
 					/>
-				</div>
-
+				</form>
 				{!user ? (
 					<button
 						className="nm-header__button"
 						onClick={() => navigate("/user-login")}
 					>
-						Iniciar Sesión
+						Login
 					</button>
 				) : (
 					<div className="nm-header__user-area">
@@ -87,7 +98,6 @@ export default function Header() {
 					</div>
 				)}
 			</div>
-
 			{user && <div className="nm-header__white-bar" />}
 		</header>
 	);

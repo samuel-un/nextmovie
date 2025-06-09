@@ -5,6 +5,7 @@ import RegisterForm from "./components/RegisterForm";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Landing from "./components/Landing";
+import SearchResultsPage from "./components/SearchResultsPage";
 import { useAuthStore } from "./store/useAuthStore";
 
 function PublicRoute({ children }) {
@@ -37,6 +38,9 @@ function AppContent() {
 					}
 				/>
 				<Route path="/" element={<Landing />} />{" "}
+			</Routes>
+			<Routes>
+				<Route path="/search-results" element={<SearchResultsPage />} />
 			</Routes>
 			<Footer />
 		</>

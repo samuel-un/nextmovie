@@ -106,7 +106,7 @@ body {
 	background-color: var(--purple-dark);
 	color: var(--white);
 	font-size: clamp(0.55rem, 1.5vw, 0.95rem);
-	font-family: "Fira Mono", "Consolas", monospace;
+	font-family: "Fira Mono", "Consolas", "Courier New", monospace;
 	letter-spacing: 0.05em;
 	outline: none;
 	transition: box-shadow 0.2s;
@@ -124,7 +124,7 @@ body {
 	border-radius: 0.8rem;
 	cursor: pointer;
 	font-size: clamp(0.65rem, 1.5vw, 0.9rem);
-	font-family: "Fira Mono", "Consolas", monospace;
+	font-family: "Fira Mono", "Consolas", "Courier New", monospace;
 	font-weight: bold;
 	transition: background 0.2s;
 	white-space: nowrap;
@@ -146,7 +146,8 @@ body {
 .nm-header__username {
 	color: var(--gray-2);
 	font-size: clamp(0.65rem, 1.5vw, 0.9rem);
-	font-family: "Fira Mono", monospace;
+	font-family: "Fira Mono", "Consolas", "Courier New", monospace;
+
 	margin-right: 1rem;
 	white-space: nowrap;
 }
@@ -204,7 +205,8 @@ body {
 	text-align: left;
 	font-size: clamp(0.65rem, 1.5vw, 0.9rem);
 	cursor: pointer;
-	font-family: "Fira Mono", monospace;
+	font-family: "Fira Mono", "Consolas", "Courier New", monospace;
+
 	text-decoration: none;
 	transition: background 0.2s;
 }
