@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, Link } from "react-router-dom";
-import "./SearchResultsPage.css"; 
+import "./SearchResultsPage.css";
+
+const TMDB_TOKEN =
+	"eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwNzhjNzgwODM2NWE0OWMyNTdhZTU2M2M1N2NjNzI2MyIsIm5iZiI6MTc0OTEyMDA3Ni40MTkwMDAxLCJzdWIiOiI2ODQxNzQ0Y2YxM2FlNmJjMDNiZjEzOWIiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.NIKxVQk8bRKowCEYVkTvFpXHfT5ZeS-9fIBOyVpaMvg";
+const API_URL = "https://api.themoviedb.org/3/search/movie";
+const PROVIDER_URL = "https://api.themoviedb.org/3/movie";
+const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w300";
 
 export default function SearchResults() {
 	const location = useLocation();
@@ -9,15 +15,11 @@ export default function SearchResults() {
 
 	const [results, setResults] = useState([]);
 	const [loading, setLoading] = useState(true);
-
-	const API_URL = "https://api.themoviedb.org/3/search/movie";
-	const TMDB_TOKEN =
-		"eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwNzhjNzgwODM2NWE0OWMyNTdhZTU2M2M1N2NjNzI2MyIsIm5iZiI6MTc0OTEyMDA3Ni40MTkwMDAxLCJzdWIiOiI2ODQxNzQ0Y2YxM2FlNmJjMDNiZjEzOWIiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.NIKxVQk8bRKowCEYVkTvFpXHfT5ZeS-9fIBOyVpaMvg";
+	const [platformsByMovie, setPlatformsByMovie] = useState({});
 
 	useEffect(() => {
 		async function fetchMovies(query) {
 			setLoading(true);
-
 			const headers = {
 				Authorization: `Bearer ${TMDB_TOKEN}`,
 				accept: "application/json",
@@ -27,15 +29,13 @@ export default function SearchResults() {
 				const responseEs = await fetch(
 					`${API_URL}?query=${encodeURIComponent(
 						query
-					)}&include_adult=false&language=es-ES`,
+					)}&include_adult=false&language=en-US`,
 					{ headers }
 				);
 				const dataEs = await responseEs.json();
 
-				if (dataEs.results && dataEs.results.length > 0) {
-					setResults(dataEs.results);
-				} else {
-					// Fallback to English
+				let movies = dataEs.results;
+				if (!movies || movies.length === 0) {
 					const responseEn = await fetch(
 						`${API_URL}?query=${encodeURIComponent(
 							query
@@ -43,8 +43,10 @@ export default function SearchResults() {
 						{ headers }
 					);
 					const dataEn = await responseEn.json();
-					setResults(dataEn.results || []);
+					movies = dataEn.results || [];
 				}
+				setResults(movies);
+				await fetchAllProviders(movies);
 			} catch (error) {
 				console.error("Error fetching data:", error);
 				setResults([]);
@@ -53,126 +55,166 @@ export default function SearchResults() {
 			}
 		}
 
+		async function fetchAllProviders(movies) {
+			const headers = {
+				Authorization: `Bearer ${TMDB_TOKEN}`,
+				accept: "application/json",
+			};
+
+			const excludedIds = [1796, 2472];
+			const providersData = {};
+			await Promise.all(
+				movies.map(async (movie) => {
+					try {
+						const res = await fetch(
+							`${PROVIDER_URL}/${movie.id}/watch/providers?language=en-US`,
+							{ headers }
+						);
+						const data = await res.json();
+						const flatrate = data.results?.ES?.flatrate || [];
+						const mapped = flatrate
+							.filter((p) => !excludedIds.includes(p.provider_id))
+							.map((p) => ({
+								id: p.provider_id,
+								name: p.provider_name,
+								logo: `https://image.tmdb.org/t/p/original${p.logo_path}`,
+							}));
+						providersData[movie.id] = mapped;
+					} catch {
+						providersData[movie.id] = [];
+					}
+				})
+			);
+			setPlatformsByMovie(providersData);
+		}
+
 		if (query) {
 			fetchMovies(query);
 		}
 	}, [query]);
 
+	const filteredResults = results.filter((movie) => {
+		const noImage = !movie.poster_path;
+		const noRating = !movie.vote_average || movie.vote_average === 0;
+		return !(noImage && noRating);
+	});
+
+	const getIMDbUrl = (movie) =>
+		`https://www.imdb.com/find?q=${encodeURIComponent(movie.title)}`;
+	const getFilmAffinityUrl = (movie) =>
+		`https://www.filmaffinity.com/es/search.php?stext=${encodeURIComponent(
+			movie.title
+		)}`;
+
 	return (
-		<div
-			className="search-results"
-			style={{
-				backgroundColor: "#060D17",
-				color: "#FFFFFF",
-				minHeight: "100vh",
-				padding: "2rem",
-			}}
-		>
-			<h2 style={{ marginBottom: "0.5rem" }}>
-				Resultados de búsqueda para: <strong>{query}</strong>
-			</h2>
-			<p style={{ marginBottom: "2rem" }}>
-				{results.length} Títulos encontrados
-			</p>
+		<div className="search-results-page">
+			<div className="search-header">
+				<h2>
+					Search results for: <strong>{query}</strong>
+				</h2>
+				<p>{filteredResults.length} Titles found</p>
+			</div>
 
 			{loading ? (
-				<p>Cargando...</p>
+				<p>Loading titles...</p>
+			) : filteredResults.length === 0 ? (
+				<p>No results found</p>
 			) : (
-				<div
-					className="results-grid"
-					style={{
-						display: "grid",
-						gridTemplateColumns:
-							"repeat(auto-fill, minmax(220px, 1fr))",
-						gap: "2rem",
-					}}
-				>
-					{results.map((movie) => (
-						<div
-							key={movie.id}
-							className="movie-card"
-							style={{
-								backgroundColor: "#0F1623",
-								padding: "1rem",
-								borderRadius: "16px",
-								boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
-							}}
-						>
+				<div className="results-list">
+					{filteredResults.map((movie) => (
+						<div className="result-item" key={movie.id}>
 							<img
-								src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
+								src={
+									movie.poster_path
+										? TMDB_IMAGE_BASE + movie.poster_path
+										: "https://res.cloudinary.com/dgbngcvkl/image/upload/v1749538986/image-not-found_jj2enj.jpg"
+								}
 								alt={movie.title}
-								style={{ width: "100%", borderRadius: "12px" }}
+								className="poster"
 							/>
-							<h3
-								style={{
-									fontSize: "1.2rem",
-									marginTop: "1rem",
-								}}
-							>
-								{movie.title}
-							</h3>
-							<p style={{ fontSize: "0.9rem", color: "#ccc" }}>
-								{movie.release_date?.slice(0, 4)}
-							</p>
+							<div className="info">
+								<div>
+									<h3 className="title">{movie.title}</h3>
+									<p className="year">
+										{movie.release_date?.slice(0, 4)}
+									</p>
+									<Link
+										to={`/detail-page/${movie.id}`}
+										className="ver-ahora"
+									>
+										See more
+									</Link>
+									{platformsByMovie[movie.id]?.length > 0 && (
+										<div className="available-on">
+											<span className="available-label">
+												Available with subscription at:
+											</span>
+											<div className="platforms-list">
+												{platformsByMovie[movie.id].map(
+													(p) => (
+														<img
+															key={p.id}
+															src={p.logo}
+															alt={p.name}
+															title={p.name}
+															className="platform-icon"
+															loading="lazy"
+														/>
+													)
+												)}
+											</div>
+										</div>
+									)}
+									<div className="ratings">
+										<div className="ratings-top">
+											<div className="rating">
+												<a
+													href={getIMDbUrl(movie)}
+													target="_blank"
+													rel="noopener noreferrer"
+												>
+													<img
+														src="https://res.cloudinary.com/dgbngcvkl/image/upload/v1749537104/IMDb-logo_f5ymwh.png"
+														alt="IMDb"
+														className="rating-logo"
+													/>
+												</a>
+											</div>
+											<div className="rating">
+												<a
+													href={getFilmAffinityUrl(
+														movie
+													)}
+													target="_blank"
+													rel="noopener noreferrer"
+												>
+													<img
+														src="https://res.cloudinary.com/dgbngcvkl/image/upload/v1749537104/filmaffinity-logo_zxet3o.png"
+														alt="FilmAffinity"
+														className="rating-logo"
+													/>
+												</a>
+											</div>
+										</div>
 
-							<Link
-								to={`/detail-page/${movie.id}`}
-								className="watch-button"
-								style={{
-									display: "inline-block",
-									marginTop: "0.8rem",
-									padding: "0.5rem 1rem",
-									backgroundColor: "#9F42C6",
-									color: "#FFF",
-									borderRadius: "8px",
-									textDecoration: "none",
-								}}
-							>
-								Ver ahora
-							</Link>
-
-							<div
-								style={{
-									marginTop: "1rem",
-									display: "flex",
-									flexDirection: "column",
-									gap: "0.5rem",
-								}}
-							>
-								<img
-									src="/logos/netflix-n-icon.png"
-									alt="Netflix"
-									style={{ width: "24px", height: "24px" }}
-								/>
-								<div
-									style={{
-										display: "flex",
-										alignItems: "center",
-										gap: "0.5rem",
-									}}
-								>
-									<img
-										src="/logos/imdb.png"
-										alt="IMDB"
-										style={{ width: "24px" }}
-									/>
-									<span>
-										{movie.vote_average?.toFixed(1)}
-									</span>
-								</div>
-								<div
-									style={{
-										display: "flex",
-										alignItems: "center",
-										gap: "0.5rem",
-									}}
-								>
-									<img
-										src="/logos/filmaffinity.png"
-										alt="Filmaffinity"
-										style={{ width: "24px" }}
-									/>
-									<span>--</span>
+										<div className="ratings-bottom">
+											<div className="rating">
+												<img
+													src="https://res.cloudinary.com/dgbngcvkl/image/upload/v1749537765/Tmdb-logo_pewsws.png"
+													alt="TMDb"
+													className="rating-logo"
+												/>
+												<span>
+													{movie.vote_average &&
+													movie.vote_average > 0
+														? movie.vote_average.toFixed(
+																1
+														  )
+														: "N/A"}
+												</span>
+											</div>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
