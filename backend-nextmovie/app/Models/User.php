@@ -5,37 +5,49 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Laravel\Sanctum\HasApiTokens;
+use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable
+class User extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens, HasFactory, Notifiable;
+	use HasFactory, Notifiable;
 
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'role',
-        'registration_date',
-    ];
+	protected $fillable = [
+		'name',
+		'email',
+		'password',
+		'role',
+		'registration_date',
+	];
 
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+	protected $hidden = [
+		'password',
+		'remember_token',
+	];
 
-    public function ratings()
-    {
-        return $this->hasMany(Rating::class);
-    }
+	// JWTSubject methods
+	public function getJWTIdentifier()
+	{
+		return $this->getKey();
+	}
 
-    public function comments()
-    {
-        return $this->hasMany(Comment::class);
-    }
+	public function getJWTCustomClaims()
+	{
+		return [];
+	}
 
-    public function lists()
-    {
-        return $this->hasMany(UserList::class);
-    }
+	// Relaciones
+	public function ratings()
+	{
+		return $this->hasMany(Rating::class);
+	}
+
+	public function comments()
+	{
+		return $this->hasMany(Comment::class);
+	}
+
+	public function lists()
+	{
+		return $this->hasMany(UserList::class);
+	}
 }

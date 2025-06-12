@@ -1,72 +1,62 @@
 import { create } from "zustand";
 import axios from "axios";
 
-const API_URL = "http://localhost:8000";
+const API_URL = "http://localhost:8000/api";
+
+// Instancia de axios con interceptor para JWT
+const api = axios.create({
+	baseURL: API_URL,
+});
+
+api.interceptors.request.use((config) => {
+	const token = localStorage.getItem("jwt_token");
+	if (token) {
+		config.headers.Authorization = `Bearer ${token}`;
+	}
+	return config;
+});
 
 export const useAuthStore = create((set) => ({
 	user: null,
 	error: null,
-	loading: true,
-
-	setUser: (user) => set({ user }),
+	loading: false,
 
 	checkUser: async () => {
+		const token = localStorage.getItem("jwt_token");
+
+		if (!token) {
+			set({ user: null, loading: false });
+			return;
+		}
+
 		set({ loading: true });
 		try {
-			const res = await fetch(`${API_URL}/auth/me`, {
-				credentials: "include",
-			});
-
-			if (res.ok) {
-				const user = await res.json();
-				set({ user, loading: false });
-				return user;
-			} else {
-				set({ user: null, loading: false });
-			}
+			const response = await api.get("/auth/me");
+			set({ user: response.data, loading: false });
+			return response.data;
 		} catch (err) {
-			set({ user: null, loading: false, error: err.message });
+			localStorage.removeItem("jwt_token");
+			set({
+				user: null,
+				loading: false,
+				error: err.response?.data?.error || "Error de autenticación",
+			});
 		}
 	},
 
 	register: async (formData) => {
 		set({ loading: true, error: null });
 		try {
-			await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
-				withCredentials: true,
+			const response = await api.post("/auth/register", formData);
+			localStorage.setItem("jwt_token", response.data.access_token);
+			set({
+				user: response.data.user,
+				loading: false,
 			});
-
-			await axios.post(`${API_URL}/auth/register`, formData, {
-				withCredentials: true,
-				headers: {
-					"Content-Type": "application/json",
-					Accept: "application/json",
-				},
-			});
-
-			await axios.post(
-				`${API_URL}/auth/login`,
-				{
-					email: formData.email,
-					password: formData.password,
-				},
-				{
-					withCredentials: true,
-					headers: {
-						"Content-Type": "application/json",
-					},
-				}
-			);
-
-			const userResponse = await axios.get(`${API_URL}/auth/me`, {
-				withCredentials: true,
-			});
-
-			set({ user: userResponse.data, loading: false });
-			return userResponse.data;
+			return response.data.user;
 		} catch (err) {
 			set({
-				error: err.response?.data?.message || "Error en el registro",
+				error: err.response?.data?.error || "Error en el registro",
 				loading: false,
 			});
 			throw err;
@@ -76,30 +66,16 @@ export const useAuthStore = create((set) => ({
 	login: async (email, password) => {
 		set({ error: null, loading: true });
 		try {
-			await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
-				withCredentials: true,
+			const response = await api.post("/auth/login", { email, password });
+			localStorage.setItem("jwt_token", response.data.access_token);
+			set({
+				user: response.data.user,
+				loading: false,
 			});
-
-			await axios.post(
-				`${API_URL}/auth/login`,
-				{ email, password },
-				{
-					withCredentials: true,
-					headers: {
-						"Content-Type": "application/json",
-					},
-				}
-			);
-
-			const userResponse = await axios.get(`${API_URL}/auth/me`, {
-				withCredentials: true,
-			});
-
-			set({ user: userResponse.data, loading: false });
-			return userResponse.data;
+			return response.data.user;
 		} catch (err) {
 			set({
-				error: err.response?.data?.message || "Error en el login",
+				error: err.response?.data?.error || "Error en el login",
 				loading: false,
 			});
 			throw err;
@@ -109,17 +85,12 @@ export const useAuthStore = create((set) => ({
 	logout: async () => {
 		set({ loading: true });
 		try {
-			await axios.post(
-				`${API_URL}/auth/logout`,
-				{},
-				{
-					withCredentials: true,
-				}
-			);
+			await api.post("/auth/logout");
+			localStorage.removeItem("jwt_token");
 			set({ user: null, loading: false });
 		} catch (err) {
 			set({
-				error: err.response?.data?.message || "Error en el logout",
+				error: err.response?.data?.error || "Error en el logout",
 				loading: false,
 			});
 		}

@@ -7,7 +7,6 @@ const showIcon =
 	"https://res.cloudinary.com/dgbngcvkl/image/upload/v1747038594/mostrar_aeuvx0.png";
 const hideIcon =
 	"https://res.cloudinary.com/dgbngcvkl/image/upload/v1747038594/ocultar_obev4s.png";
-const API_URL = "http://localhost:8000";
 
 function isPasswordSecure(password) {
 	const minLength = 8;
@@ -39,7 +38,11 @@ export default function RegisterForm() {
 	const [showPassword, setShowPassword] = useState(false);
 	const [showRepeatPassword, setShowRepeatPassword] = useState(false);
 
-	const { register, error: storeError, loading } = useAuthStore();
+	const register = useAuthStore((state) => state.register);
+	const loading = useAuthStore((state) => state.loading);
+	const storeError = useAuthStore((state) => state.storeError);
+
+	const [localError, setLocalError] = useState("");
 	const [success, setSuccess] = useState("");
 	const navigate = useNavigate();
 
@@ -49,44 +52,58 @@ export default function RegisterForm() {
 			...prev,
 			[name]: type === "checkbox" ? checked : value,
 		}));
+		setLocalError("");
 		setSuccess("");
 	};
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
-		if (
-			!form.fullName ||
-			!form.email ||
-			!form.password ||
-			!form.repeatPassword
-		) {
+		// Validaciones locales
+		if (!form.fullName.trim()) {
+			setLocalError("Please enter your full name.");
 			return;
 		}
-
+		if (!form.email.trim()) {
+			setLocalError("Please enter your email.");
+			return;
+		}
 		if (!isValidEmail(form.email)) {
+			setLocalError("Invalid email format.");
 			return;
 		}
-
+		if (!form.password) {
+			setLocalError("Please enter a password.");
+			return;
+		}
 		if (!isPasswordSecure(form.password)) {
+			setLocalError(
+				"Password must be at least 8 characters and include uppercase, lowercase, number, and symbol."
+			);
 			return;
 		}
-
 		if (form.password !== form.repeatPassword) {
+			setLocalError("Passwords do not match.");
 			return;
 		}
-
 		if (!form.terms) {
+			setLocalError("You must accept the Terms and Conditions.");
 			return;
 		}
 
-		await register({
-			name: form.fullName,
-			email: form.email,
-			password: form.password,
-			password_confirmation: form.repeatPassword,
-		});
-		navigate("/");
+		try {
+			await register({
+				name: form.fullName,
+				email: form.email,
+				password: form.password,
+				password_confirmation: form.repeatPassword,
+			});
+			setSuccess("Account created successfully!");
+			navigate("/");
+		} catch (err) {
+			// El error ya se guarda en storeError en el store
+			setSuccess("");
+		}
 	};
 
 	return (
@@ -184,7 +201,9 @@ export default function RegisterForm() {
 						the <a href="#">Privacy Policy</a>
 					</label>
 				</div>
-				{storeError && <div className="error">{storeError}</div>}
+				{(localError || storeError) && (
+					<div className="error">{localError || storeError}</div>
+				)}
 				{success && <div className="success">{success}</div>}
 				<button
 					type="submit"

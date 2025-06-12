@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate, createSearchParams } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import "./Header.css";
@@ -19,6 +19,16 @@ export default function Header() {
 		});
 		setSearch("");
 	};
+
+	useEffect(() => {
+		const handleClickOutside = (e) => {
+			if (!e.target.closest(".nm-header__user-area")) {
+				setMenuOpen(false);
+			}
+		};
+		document.addEventListener("click", handleClickOutside);
+		return () => document.removeEventListener("click", handleClickOutside);
+	}, []);
 
 	return (
 		<header className="nm-header">

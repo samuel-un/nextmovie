@@ -3,21 +3,20 @@
 return [
 
     'defaults' => [
-        'guard' => 'web',
+        'guard' => 'api', // Cambia a 'api' si tu API es el principal punto de acceso
         'passwords' => 'users',
     ],
 
-	'guards' => [
-		'web' => [
-			'driver' => 'session',
-			'provider' => 'users',
-		],
-		'api' => [
-			'driver' => 'token',
-			'provider' => 'users',
-			'hash' => false,
-		],
-	],
+    'guards' => [
+        'web' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
+        'api' => [
+            'driver' => 'jwt', // Cambiado de 'token' o 'sanctum' a 'jwt'
+            'provider' => 'users',
+        ],
+    ],
 
     'providers' => [
         'users' => [

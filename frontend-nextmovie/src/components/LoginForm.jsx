@@ -10,12 +10,15 @@ const hideIcon =
 
 export default function LoginForm() {
 	const login = useAuthStore((state) => state.login);
+	const loading = useAuthStore((state) => state.loading);
+	const storeError = useAuthStore((state) => state.storeError);
+
 	const [form, setForm] = useState({
 		email: "",
 		password: "",
 	});
 	const [showPassword, setShowPassword] = useState(false);
-	const [error, setError] = useState("");
+	const [localError, setLocalError] = useState("");
 	const [success, setSuccess] = useState("");
 	const navigate = useNavigate();
 
@@ -25,18 +28,20 @@ export default function LoginForm() {
 			...prev,
 			[name]: value,
 		}));
-		setError("");
+		setLocalError("");
 		setSuccess("");
 	};
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		setError("");
+		setLocalError("");
 		setSuccess("");
-		if (!form.email || !form.password) {
-			setError("Please fill in all fields.");
+
+		if (!form.email.trim() || !form.password) {
+			setLocalError("Please fill in all fields.");
 			return;
 		}
+
 		try {
 			await login(form.email, form.password);
 			setSuccess("Login successful!");
@@ -45,7 +50,8 @@ export default function LoginForm() {
 				navigate("/");
 			}, 900);
 		} catch (err) {
-			setError(err.message || "Login failed. Please try again.");
+			// storeError se actualiza en el store, mostramos localError
+			setLocalError(storeError || "Login failed. Please try again.");
 		}
 	};
 
@@ -92,23 +98,22 @@ export default function LoginForm() {
 						>
 							<img
 								src={showPassword ? hideIcon : showIcon}
-								alt={
-									showPassword
-										? "Hide password"
-										: "Show password"
-								}
+								alt="Toggle password"
 							/>
 						</button>
 					</div>
 				</div>
-				{error && <div className="error">{error}</div>}
+				{(localError || storeError) && (
+					<div className="error">{localError || storeError}</div>
+				)}
 				{success && <div className="success">{success}</div>}
 				<button
 					type="submit"
 					className="create-account"
 					style={{ marginBottom: "1.3rem" }}
+					disabled={loading}
 				>
-					Login
+					{loading ? "Logging in..." : "Login"}
 				</button>
 				<hr className="divider" />
 				<div className="signin-link">
