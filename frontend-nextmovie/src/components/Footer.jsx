@@ -3,7 +3,7 @@ import "./Footer.css";
 
 export default function Footer() {
 	return (
-		<footer className="footer">
+		<footer className="footer" role="contentinfo">
 			<div className="footer-inner">
 				<div className="footer-left">
 					<img
@@ -12,12 +12,12 @@ export default function Footer() {
 						className="footer-logo"
 					/>
 					<p className="footer-copy">
-						&copy; 2025 NextMovie, inc.
+						&copy; 2025 NextMovie, Inc.
 						<br className="footer-mobile-break" />
 						All rights reserved.
 					</p>
 				</div>
-				<div className="footer-divider" />
+				<div className="footer-divider" aria-hidden="true" />
 				<div className="footer-right">
 					<span className="footer-dev">Developed by Samuel U.N</span>
 					<div className="footer-icons">
@@ -29,8 +29,10 @@ export default function Footer() {
 						>
 							<img
 								src="https://res.cloudinary.com/dgbngcvkl/image/upload/v1749110620/logotipo-de-github_zxc5vl.png"
-								alt="GitHub"
+								alt=""
 								className="footer-icon"
+								role="img"
+								aria-hidden="true"
 							/>
 						</a>
 						<a
@@ -41,8 +43,10 @@ export default function Footer() {
 						>
 							<img
 								src="https://res.cloudinary.com/dgbngcvkl/image/upload/v1749110761/linkedin_ma858y.png"
-								alt="LinkedIn"
+								alt=""
 								className="footer-icon"
+								role="img"
+								aria-hidden="true"
 							/>
 						</a>
 					</div>

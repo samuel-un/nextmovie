@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
-import "./RegisterForm.css";
+import { validateLoginForm } from "../utils/validation";
+import "./AuthForm.css";
 
 const showIcon =
 	"https://res.cloudinary.com/dgbngcvkl/image/upload/v1747038594/mostrar_aeuvx0.png";
@@ -13,21 +14,16 @@ export default function LoginForm() {
 	const loading = useAuthStore((state) => state.loading);
 	const storeError = useAuthStore((state) => state.storeError);
 
-	const [form, setForm] = useState({
-		email: "",
-		password: "",
-	});
+	const [form, setForm] = useState({ email: "", password: "" });
 	const [showPassword, setShowPassword] = useState(false);
 	const [localError, setLocalError] = useState("");
 	const [success, setSuccess] = useState("");
+
 	const navigate = useNavigate();
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
-		setForm((prev) => ({
-			...prev,
-			[name]: value,
-		}));
+		setForm((prev) => ({ ...prev, [name]: value }));
 		setLocalError("");
 		setSuccess("");
 	};
@@ -37,8 +33,9 @@ export default function LoginForm() {
 		setLocalError("");
 		setSuccess("");
 
-		if (!form.email.trim() || !form.password) {
-			setLocalError("Please fill in all fields.");
+		const error = validateLoginForm(form);
+		if (error) {
+			setLocalError(error);
 			return;
 		}
 
@@ -46,11 +43,8 @@ export default function LoginForm() {
 			await login(form.email, form.password);
 			setSuccess("Login successful!");
 			setForm({ email: "", password: "" });
-			setTimeout(() => {
-				navigate("/");
-			}, 900);
+			setTimeout(() => navigate("/"), 900);
 		} catch (err) {
-			// storeError se actualiza en el store, mostramos localError
 			setLocalError(storeError || "Login failed. Please try again.");
 		}
 	};
@@ -67,6 +61,7 @@ export default function LoginForm() {
 					alt="NextMovie Logo"
 					className="logo"
 				/>
+
 				<div className="inputs-section">
 					<div className="input-wrapper">
 						<input
@@ -98,15 +93,27 @@ export default function LoginForm() {
 						>
 							<img
 								src={showPassword ? hideIcon : showIcon}
-								alt="Toggle password"
+								alt={
+									showPassword
+										? "Hide password"
+										: "Show password"
+								}
 							/>
 						</button>
 					</div>
 				</div>
+
 				{(localError || storeError) && (
-					<div className="error">{localError || storeError}</div>
+					<div className="error" role="alert">
+						{localError || storeError}
+					</div>
 				)}
-				{success && <div className="success">{success}</div>}
+				{success && (
+					<div className="success" role="status">
+						{success}
+					</div>
+				)}
+
 				<button
 					type="submit"
 					className="create-account"
@@ -115,16 +122,23 @@ export default function LoginForm() {
 				>
 					{loading ? "Logging in..." : "Login"}
 				</button>
-				<hr className="divider" />
-				<div className="signin-link">
-					Don't have an account?
-					<a
-						href="/user-register"
-						style={{ color: "#b86cff", marginLeft: 4 }}
-					>
-						<br />
-						Create an account →
-					</a>
+
+				<div className="signin-section">
+					<hr className="divider" />
+					<div className="signin-link">
+						Don't have an account?
+						<a
+							href="/user-register"
+							style={{
+								color: "#9f42c6",
+								fontWeight: 700,
+								marginLeft: 4,
+							}}
+						>
+							<br />
+							Create an account →
+						</a>
+					</div>
 				</div>
 			</form>
 		</div>

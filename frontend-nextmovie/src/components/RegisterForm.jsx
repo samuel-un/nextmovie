@@ -1,31 +1,13 @@
 import React, { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useNavigate } from "react-router-dom";
-import "./RegisterForm.css";
+import { validateRegisterForm } from "../utils/validation";
+import "./AuthForm.css";
 
 const showIcon =
 	"https://res.cloudinary.com/dgbngcvkl/image/upload/v1747038594/mostrar_aeuvx0.png";
 const hideIcon =
 	"https://res.cloudinary.com/dgbngcvkl/image/upload/v1747038594/ocultar_obev4s.png";
-
-function isPasswordSecure(password) {
-	const minLength = 8;
-	const hasUpper = /[A-Z]/.test(password);
-	const hasLower = /[a-z]/.test(password);
-	const hasNumber = /\d/.test(password);
-	const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
-	return (
-		password.length >= minLength &&
-		hasUpper &&
-		hasLower &&
-		hasNumber &&
-		hasSymbol
-	);
-}
-
-function isValidEmail(email) {
-	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
 
 export default function RegisterForm() {
 	const [form, setForm] = useState({
@@ -59,35 +41,9 @@ export default function RegisterForm() {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
-		// Validaciones locales
-		if (!form.fullName.trim()) {
-			setLocalError("Please enter your full name.");
-			return;
-		}
-		if (!form.email.trim()) {
-			setLocalError("Please enter your email.");
-			return;
-		}
-		if (!isValidEmail(form.email)) {
-			setLocalError("Invalid email format.");
-			return;
-		}
-		if (!form.password) {
-			setLocalError("Please enter a password.");
-			return;
-		}
-		if (!isPasswordSecure(form.password)) {
-			setLocalError(
-				"Password must be at least 8 characters and include uppercase, lowercase, number, and symbol."
-			);
-			return;
-		}
-		if (form.password !== form.repeatPassword) {
-			setLocalError("Passwords do not match.");
-			return;
-		}
-		if (!form.terms) {
-			setLocalError("You must accept the Terms and Conditions.");
+		const error = validateRegisterForm(form);
+		if (error) {
+			setLocalError(error);
 			return;
 		}
 
@@ -101,7 +57,6 @@ export default function RegisterForm() {
 			setSuccess("Account created successfully!");
 			navigate("/");
 		} catch (err) {
-			// El error ya se guarda en storeError en el store
 			setSuccess("");
 		}
 	};

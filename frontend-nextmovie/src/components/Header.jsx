@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, createSearchParams } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import "./Header.css";
@@ -9,6 +9,7 @@ export default function Header() {
 	const [menuOpen, setMenuOpen] = useState(false);
 	const [search, setSearch] = useState("");
 	const navigate = useNavigate();
+	const firstMenuItemRef = useRef(null);
 
 	const handleSearch = (e) => {
 		e.preventDefault();
@@ -26,9 +27,25 @@ export default function Header() {
 				setMenuOpen(false);
 			}
 		};
+		const handleEsc = (e) => {
+			if (e.key === "Escape") {
+				setMenuOpen(false);
+			}
+		};
 		document.addEventListener("click", handleClickOutside);
-		return () => document.removeEventListener("click", handleClickOutside);
+		document.addEventListener("keydown", handleEsc);
+
+		return () => {
+			document.removeEventListener("click", handleClickOutside);
+			document.removeEventListener("keydown", handleEsc);
+		};
 	}, []);
+
+	useEffect(() => {
+		if (menuOpen && firstMenuItemRef.current) {
+			firstMenuItemRef.current.focus();
+		}
+	}, [menuOpen]);
 
 	return (
 		<header className="nm-header">
@@ -41,7 +58,7 @@ export default function Header() {
 					/>
 				</Link>
 				<form className="nm-header__search" onSubmit={handleSearch}>
-					<span className="nm-header__search-icon">
+					<span className="nm-header__search-icon" aria-hidden="true">
 						<svg
 							width="22"
 							height="22"
@@ -60,6 +77,7 @@ export default function Header() {
 						placeholder="Search for Movies or Series"
 						value={search}
 						onChange={(e) => setSearch(e.target.value)}
+						aria-label="Search movies or series"
 					/>
 				</form>
 				{!user ? (
@@ -75,34 +93,46 @@ export default function Header() {
 							{user.name || user.username}
 						</span>
 						<button
-							className="nm-header__menu-button"
+							className={`nm-header__menu-button ${
+								menuOpen ? "menu-open" : ""
+							}`}
 							onClick={() => setMenuOpen(!menuOpen)}
-							aria-label="Abrir menú"
+							aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+							aria-expanded={menuOpen}
+							aria-controls="user-menu"
 						>
 							<span className="nm-header__bar"></span>
 							<span className="nm-header__bar"></span>
 							<span className="nm-header__bar"></span>
 						</button>
 						<div
+							id="user-menu"
+							role="menu"
 							className={`nm-header__dropdown ${
 								menuOpen ? "nm-header__dropdown--open" : ""
 							}`}
 						>
 							<Link
+								ref={firstMenuItemRef}
 								to="/user-profile"
 								className="nm-header__dropdown-link"
+								role="menuitem"
+								tabIndex={menuOpen ? 0 : -1}
 								onClick={() => setMenuOpen(false)}
 							>
 								My profile
 							</Link>
 							<button
 								className="nm-header__dropdown-link"
+								role="menuitem"
+								tabIndex={menuOpen ? 0 : -1}
 								onClick={() => {
 									setMenuOpen(false);
 									logout();
+									navigate("/");
 								}}
 							>
-								Log out / Login
+								Log out
 							</button>
 						</div>
 					</div>

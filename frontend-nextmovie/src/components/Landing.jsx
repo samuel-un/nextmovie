@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Loader from "../components/Loader";
 import "./Landing.css";
 
-const TMDB_ACCESS_TOKEN =
-	"eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwNzhjNzgwODM2NWE0OWMyNTdhZTU2M2M1N2NjNzI2MyIsIm5iZiI6MTc0OTEyMDA3Ni40MTkwMDAxLCJzdWIiOiI2ODQxNzQ0Y2YxM2FlNmJjMDNiZjEzOWIiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.NIKxVQk8bRKowCEYVkTvFpXHfT5ZeS-9fIBOyVpaMvg";
+const TMDB_ACCESS_TOKEN = import.meta.env.VITE_TMDB_ACCESS_TOKEN;
 
 export default function Landing() {
 	const [movies, setMovies] = useState([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(null);
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		const fetchLatestMovies = async () => {
+			setLoading(true);
 			try {
 				const response = await fetch(
 					"https://api.themoviedb.org/3/movie/popular?language=es-ES&page=1",
@@ -22,14 +27,22 @@ export default function Landing() {
 				const data = await response.json();
 				setMovies(data.results.slice(0, 4));
 			} catch (error) {
+				setError(
+					"No se pudieron cargar las películas. Intenta más tarde."
+				);
 				setMovies([]);
+			} finally {
+				setLoading(false);
 			}
 		};
+
 		fetchLatestMovies();
 	}, []);
 
 	return (
 		<div className="landing">
+			{loading && <Loader />}
+
 			<section className="hero">
 				<div className="hero-content">
 					<img
@@ -59,26 +72,36 @@ export default function Landing() {
 							<strong>rate</strong>
 						</div>
 					</div>
-					<button className="cta-button">Join for free →</button>
+					<button
+						className="cta-button"
+						onClick={() => navigate("/register")}
+					>
+						Join for free →
+					</button>
 				</div>
 			</section>
 
 			<section className="movies-section">
 				<div className="movies-container">
 					<h2 className="movies-title">Latest Movies and Series</h2>
-					<div className="movies-grid">
-						{movies.length === 0 ? (
-							<p className="movies-loading">Loading...</p>
-						) : (
+
+					{error && <p className="error-message">{error}</p>}
+
+					<div className="movies-grid" aria-live="polite">
+						{!loading &&
 							movies.map((movie) => (
 								<div key={movie.id} className="movie-card">
 									<img
+										loading="lazy"
 										src={
 											movie.poster_path
 												? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
 												: "https://via.placeholder.com/300x450?text=No+Image"
 										}
-										alt={movie.title}
+										alt={
+											movie.title ||
+											"Poster not available"
+										}
 										className="movie-poster"
 									/>
 									<div className="movie-info">
@@ -92,8 +115,7 @@ export default function Landing() {
 										</span>
 									</div>
 								</div>
-							))
-						)}
+							))}
 					</div>
 				</div>
 			</section>

@@ -2,11 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useLocation, Link } from "react-router-dom";
 import "./SearchResultsPage.css";
 
-const TMDB_TOKEN =
-	"eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwNzhjNzgwODM2NWE0OWMyNTdhZTU2M2M1N2NjNzI2MyIsIm5iZiI6MTc0OTEyMDA3Ni40MTkwMDAxLCJzdWIiOiI2ODQxNzQ0Y2YxM2FlNmJjMDNiZjEzOWIiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.NIKxVQk8bRKowCEYVkTvFpXHfT5ZeS-9fIBOyVpaMvg";
+const TMDB_TOKEN = import.meta.env.VITE_TMDB_TOKEN;
 const API_URL = "https://api.themoviedb.org/3/search/movie";
 const PROVIDER_URL = "https://api.themoviedb.org/3/movie";
-const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w300";
+const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p";
 
 export default function SearchResults() {
 	const location = useLocation();
@@ -16,39 +15,46 @@ export default function SearchResults() {
 	const [results, setResults] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [platformsByMovie, setPlatformsByMovie] = useState({});
+	const [error, setError] = useState(null);
 
 	useEffect(() => {
 		async function fetchMovies(query) {
 			setLoading(true);
+			setError(null);
+
 			const headers = {
 				Authorization: `Bearer ${TMDB_TOKEN}`,
 				accept: "application/json",
 			};
 
 			try {
-				const responseEs = await fetch(
+				// Primero buscar en inglés
+				let response = await fetch(
 					`${API_URL}?query=${encodeURIComponent(
 						query
 					)}&include_adult=false&language=en-US`,
 					{ headers }
 				);
-				const dataEs = await responseEs.json();
+				let data = await response.json();
+				let movies = data.results;
 
-				let movies = dataEs.results;
+				// Si no hay resultados, buscar en español
 				if (!movies || movies.length === 0) {
-					const responseEn = await fetch(
+					response = await fetch(
 						`${API_URL}?query=${encodeURIComponent(
 							query
-						)}&include_adult=false&language=en-US`,
+						)}&include_adult=false&language=es-ES`,
 						{ headers }
 					);
-					const dataEn = await responseEn.json();
-					movies = dataEn.results || [];
+					data = await response.json();
+					movies = data.results || [];
 				}
+
 				setResults(movies);
 				await fetchAllProviders(movies);
-			} catch (error) {
-				console.error("Error fetching data:", error);
+			} catch (err) {
+				console.error("Error fetching data:", err);
+				setError("Oops! Something went wrong fetching the movies.");
 				setResults([]);
 			} finally {
 				setLoading(false);
@@ -77,7 +83,7 @@ export default function SearchResults() {
 							.map((p) => ({
 								id: p.provider_id,
 								name: p.provider_name,
-								logo: `https://image.tmdb.org/t/p/original${p.logo_path}`,
+								logo: `${TMDB_IMAGE_BASE}/original${p.logo_path}`,
 							}));
 						providersData[movie.id] = mapped;
 					} catch {
@@ -107,120 +113,189 @@ export default function SearchResults() {
 		)}`;
 
 	return (
-		<div className="search-results-page">
-			<div className="search-header">
+		<section
+			className="search-results-page"
+			aria-label="Search results page"
+		>
+			<header className="search-header">
 				<h2>
 					Search results for: <strong>{query}</strong>
 				</h2>
 				<p>{filteredResults.length} Titles found</p>
-			</div>
+			</header>
+
+			{error && (
+				<p className="error-message" role="alert">
+					{error}
+				</p>
+			)}
 
 			{loading ? (
-				<p>Loading titles...</p>
+				<Spinner />
 			) : filteredResults.length === 0 ? (
 				<p>No results found</p>
 			) : (
 				<div className="results-list">
 					{filteredResults.map((movie) => (
-						<div className="result-item" key={movie.id}>
-							<img
-								src={
-									movie.poster_path
-										? TMDB_IMAGE_BASE + movie.poster_path
-										: "https://res.cloudinary.com/dgbngcvkl/image/upload/v1749538986/image-not-found_jj2enj.jpg"
-								}
-								alt={movie.title}
-								className="poster"
-							/>
-							<div className="info">
-								<div>
-									<h3 className="title">{movie.title}</h3>
-									<p className="year">
-										{movie.release_date?.slice(0, 4)}
-									</p>
-									<Link
-										to={`/detail-page/${movie.id}`}
-										className="ver-ahora"
-									>
-										See more
-									</Link>
-									{platformsByMovie[movie.id]?.length > 0 && (
-										<div className="available-on">
-											<span className="available-label">
-												Available with subscription at:
-											</span>
-											<div className="platforms-list">
-												{platformsByMovie[movie.id].map(
-													(p) => (
-														<img
-															key={p.id}
-															src={p.logo}
-															alt={p.name}
-															title={p.name}
-															className="platform-icon"
-															loading="lazy"
-														/>
-													)
-												)}
-											</div>
-										</div>
-									)}
-									<div className="ratings">
-										<div className="ratings-top">
-											<div className="rating">
-												<a
-													href={getIMDbUrl(movie)}
-													target="_blank"
-													rel="noopener noreferrer"
-												>
-													<img
-														src="https://res.cloudinary.com/dgbngcvkl/image/upload/v1749537104/IMDb-logo_f5ymwh.png"
-														alt="IMDb"
-														className="rating-logo"
-													/>
-												</a>
-											</div>
-											<div className="rating">
-												<a
-													href={getFilmAffinityUrl(
-														movie
-													)}
-													target="_blank"
-													rel="noopener noreferrer"
-												>
-													<img
-														src="https://res.cloudinary.com/dgbngcvkl/image/upload/v1749537104/filmaffinity-logo_zxet3o.png"
-														alt="FilmAffinity"
-														className="rating-logo"
-													/>
-												</a>
-											</div>
-										</div>
-
-										<div className="ratings-bottom">
-											<div className="rating">
-												<img
-													src="https://res.cloudinary.com/dgbngcvkl/image/upload/v1749537765/Tmdb-logo_pewsws.png"
-													alt="TMDb"
-													className="rating-logo"
-												/>
-												<span>
-													{movie.vote_average &&
-													movie.vote_average > 0
-														? movie.vote_average.toFixed(
-																1
-														  )
-														: "N/A"}
-												</span>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
+						<ResultItem
+							key={movie.id}
+							movie={movie}
+							platforms={platformsByMovie[movie.id]}
+							getIMDbUrl={getIMDbUrl}
+							getFilmAffinityUrl={getFilmAffinityUrl}
+						/>
 					))}
 				</div>
 			)}
+		</section>
+	);
+}
+
+function ResultItem({ movie, platforms, getIMDbUrl, getFilmAffinityUrl }) {
+	return (
+		<article className="result-item" aria-label={`Movie: ${movie.title}`}>
+			<img
+				src={
+					movie.poster_path
+						? `${TMDB_IMAGE_BASE}/w300${movie.poster_path}`
+						: "https://res.cloudinary.com/dgbngcvkl/image/upload/v1749538986/image-not-found_jj2enj.jpg"
+				}
+				srcSet={
+					movie.poster_path
+						? `${TMDB_IMAGE_BASE}/w300${movie.poster_path} 300w, ${TMDB_IMAGE_BASE}/w780${movie.poster_path} 780w`
+						: null
+				}
+				sizes="(max-width: 600px) 300px, 780px"
+				alt={`Poster of movie ${movie.title}`}
+				className="poster"
+				loading="lazy"
+			/>
+			<div className="info">
+				<div>
+					<h3 className="title">{movie.title}</h3>
+					<p className="year">{movie.release_date?.slice(0, 4)}</p>
+					<Link
+						to={`/detail-page/${movie.id}`}
+						className="ver-ahora"
+						aria-label={`See more details about ${movie.title}`}
+					>
+						See more
+					</Link>
+
+					{platforms?.length > 0 && (
+						<PlatformList platforms={platforms} />
+					)}
+
+					<Ratings
+						movie={movie}
+						getIMDbUrl={getIMDbUrl}
+						getFilmAffinityUrl={getFilmAffinityUrl}
+					/>
+				</div>
+			</div>
+		</article>
+	);
+}
+
+function PlatformList({ platforms }) {
+	return (
+		<div className="available-on">
+			<span className="available-label">
+				Available with subscription at:
+			</span>
+			<div className="platforms-list">
+				{platforms.map((p) => (
+					<img
+						key={p.id}
+						src={p.logo}
+						alt={`Logo of ${p.name}`}
+						title={p.name}
+						className="platform-icon"
+						loading="lazy"
+						aria-label={p.name}
+					/>
+				))}
+			</div>
+		</div>
+	);
+}
+
+function Ratings({ movie, getIMDbUrl, getFilmAffinityUrl }) {
+	return (
+		<div className="ratings">
+			<div className="ratings-top">
+				<div className="rating">
+					<a
+						href={getIMDbUrl(movie)}
+						target="_blank"
+						rel="noopener noreferrer"
+						aria-label={`View ${movie.title} on IMDb`}
+					>
+						<img
+							src="https://res.cloudinary.com/dgbngcvkl/image/upload/v1749537104/IMDb-logo_f5ymwh.png"
+							alt="IMDb logo"
+							className="rating-logo"
+							loading="lazy"
+						/>
+					</a>
+				</div>
+				<div className="rating">
+					<a
+						href={getFilmAffinityUrl(movie)}
+						target="_blank"
+						rel="noopener noreferrer"
+						aria-label={`View ${movie.title} on FilmAffinity`}
+					>
+						<img
+							src="https://res.cloudinary.com/dgbngcvkl/image/upload/v1749537104/filmaffinity-logo_zxet3o.png"
+							alt="FilmAffinity logo"
+							className="rating-logo"
+							loading="lazy"
+						/>
+					</a>
+				</div>
+			</div>
+
+			<div className="ratings-bottom">
+				<div className="rating">
+					<img
+						src="https://res.cloudinary.com/dgbngcvkl/image/upload/v1749537765/Tmdb-logo_pewsws.png"
+						alt="TMDb logo"
+						className="rating-logo"
+						loading="lazy"
+					/>
+					<span>
+						{movie.vote_average && movie.vote_average > 0
+							? movie.vote_average.toFixed(1)
+							: "N/A"}
+					</span>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function Spinner() {
+	return (
+		<div
+			className="spinner"
+			role="status"
+			aria-live="polite"
+			aria-label="Loading"
+		>
+			<svg
+				width="50"
+				height="50"
+				viewBox="0 0 50 50"
+				aria-hidden="true"
+				fill="none"
+				stroke="currentColor"
+				strokeWidth="4"
+				strokeLinecap="round"
+			>
+				<circle cx="25" cy="25" r="20" strokeOpacity="0.2" />
+				<path d="M45 25a20 20 0 0 1-20 20" />
+			</svg>
 		</div>
 	);
 }
