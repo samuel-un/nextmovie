@@ -40,7 +40,7 @@ class AuthController extends Controller
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => JWTAuth::factory()->getTTL() * 60,
-            'message' => 'Usuario creado y autenticado correctamente',
+            'message' => 'User created and authenticated successfully',
         ], 201);
     }
 
@@ -49,7 +49,7 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (!$token = JWTAuth::attempt($credentials)) {
-            return response()->json(['error' => 'Credenciales inválidas'], 401);
+            return response()->json(['error' => 'Invalid credentials'], 401);
         }
 
         $user = auth()->user();
@@ -63,7 +63,7 @@ class AuthController extends Controller
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => JWTAuth::factory()->getTTL() * 60,
-            'message' => 'Login exitoso',
+            'message' => 'Login successful',
         ]);
     }
 
@@ -71,9 +71,9 @@ class AuthController extends Controller
     {
         try {
             JWTAuth::invalidate(JWTAuth::getToken());
-            return response()->json(['message' => 'Logout exitoso']);
+            return response()->json(['message' => 'Logout successful']);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'No se pudo cerrar sesión', 'message' => $e->getMessage()], 500);
+            return response()->json(['error' => 'Could not log out', 'message' => $e->getMessage()], 500);
         }
     }
 
