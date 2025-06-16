@@ -19,8 +19,9 @@ api.interceptors.request.use((config) => {
 export const useAuthStore = create((set) => ({
 	user: null,
 	error: null,
-	loading: false,
+	loading: true, // iniciamos en true porque vamos a cargar sesión
 
+	// Nueva función para cargar usuario al arrancar
 	checkUser: async () => {
 		const token = localStorage.getItem("jwt_token");
 

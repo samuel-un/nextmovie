@@ -22,7 +22,7 @@ export default function RegisterForm() {
 
 	const register = useAuthStore((state) => state.register);
 	const loading = useAuthStore((state) => state.loading);
-	const storeError = useAuthStore((state) => state.storeError);
+	const storeError = useAuthStore((state) => state.error);
 
 	const [localError, setLocalError] = useState("");
 	const [success, setSuccess] = useState("");

@@ -12,7 +12,7 @@ const hideIcon =
 export default function LoginForm() {
 	const login = useAuthStore((state) => state.login);
 	const loading = useAuthStore((state) => state.loading);
-	const storeError = useAuthStore((state) => state.storeError);
+	const storeError = useAuthStore((state) => state.error);
 
 	const [form, setForm] = useState({ email: "", password: "" });
 	const [showPassword, setShowPassword] = useState(false);
@@ -45,7 +45,11 @@ export default function LoginForm() {
 			setForm({ email: "", password: "" });
 			setTimeout(() => navigate("/"), 900);
 		} catch (err) {
-			setLocalError(storeError || "Login failed. Please try again.");
+			const msg =
+				err.response?.data?.error ||
+				err.response?.data?.message ||
+				"Login failed. Please try again.";
+			setLocalError(msg);
 		}
 	};
 

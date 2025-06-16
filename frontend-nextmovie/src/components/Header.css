@@ -160,9 +160,10 @@ body {
 	position: absolute;
 	width: 100%;
 	height: 3px;
-	background-color: var(--purple-dark);
+	background-color: var(--purple);
 	border-radius: 2px;
 	transition: all 0.3s ease-in-out;
+	box-shadow: 0 0 5px var(--purple);
 }
 
 .nm-header__bar:nth-child(1) {

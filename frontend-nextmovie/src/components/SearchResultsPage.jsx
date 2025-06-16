@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useLocation, Link } from "react-router-dom";
 import "./SearchResultsPage.css";
 
+// Importa y registra el spinner tailspin una vez
+import { tailspin } from "ldrs";
+tailspin.register();
+
 const TMDB_TOKEN = import.meta.env.VITE_TMDB_TOKEN;
 const API_URL = "https://api.themoviedb.org/3/search/movie";
 const PROVIDER_URL = "https://api.themoviedb.org/3/movie";
@@ -275,6 +279,7 @@ function Ratings({ movie, getIMDbUrl, getFilmAffinityUrl }) {
 	);
 }
 
+// Aquí el spinner con el componente web l-tailspin
 function Spinner() {
 	return (
 		<div
@@ -282,20 +287,19 @@ function Spinner() {
 			role="status"
 			aria-live="polite"
 			aria-label="Loading"
+			style={{
+				display: "flex",
+				justifyContent: "center",
+				padding: "2rem",
+			}}
 		>
-			<svg
-				width="50"
-				height="50"
-				viewBox="0 0 50 50"
-				aria-hidden="true"
-				fill="none"
-				stroke="currentColor"
-				strokeWidth="4"
-				strokeLinecap="round"
-			>
-				<circle cx="25" cy="25" r="20" strokeOpacity="0.2" />
-				<path d="M45 25a20 20 0 0 1-20 20" />
-			</svg>
+			<l-tailspin
+				size="40"
+				stroke="5"
+				speed="0.9"
+				color="#9f42c6
+"
+			/>
 		</div>
 	);
 }

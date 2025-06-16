@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Loader from "../components/Loader";
+import { useAuthStore } from "../store/useAuthStore";
 import "./Landing.css";
 
-const TMDB_ACCESS_TOKEN = import.meta.env.VITE_TMDB_ACCESS_TOKEN;
+const TMDB_TOKEN = import.meta.env.VITE_TMDB_TOKEN;
 
 export default function Landing() {
 	const [movies, setMovies] = useState([]);
@@ -11,15 +12,18 @@ export default function Landing() {
 	const [error, setError] = useState(null);
 	const navigate = useNavigate();
 
+	// Obtener el usuario del store global
+	const user = useAuthStore((state) => state.user);
+
 	useEffect(() => {
 		const fetchLatestMovies = async () => {
 			setLoading(true);
 			try {
 				const response = await fetch(
-					"https://api.themoviedb.org/3/movie/popular?language=es-ES&page=1",
+					"https://api.themoviedb.org/3/movie/popular?language=en-US&page=1",
 					{
 						headers: {
-							Authorization: `Bearer ${TMDB_ACCESS_TOKEN}`,
+							Authorization: `Bearer ${TMDB_TOKEN}`,
 							accept: "application/json",
 						},
 					}
@@ -72,12 +76,23 @@ export default function Landing() {
 							<strong>rate</strong>
 						</div>
 					</div>
-					<button
-						className="cta-button"
-						onClick={() => navigate("/register")}
-					>
-						Join for free →
-					</button>
+
+					{/* Mostrar el botón solo si NO está logueado */}
+					{!user ? (
+						<button
+							className="cta-button"
+							onClick={() => navigate("/user-login")}
+						>
+							Join for free →
+						</button>
+					) : (
+						<button
+							className="cta-button"
+							onClick={() => navigate("/user-profile")}
+						>
+							Manage Profile →
+						</button>
+					)}
 				</div>
 			</section>
 
