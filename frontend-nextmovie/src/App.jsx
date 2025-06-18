@@ -6,16 +6,26 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Landing from "./components/Landing";
 import SearchResultsPage from "./components/SearchResultsPage";
+import UserProfile from "./components/UserProfile";
 import { useAuthStore } from "./store/useAuthStore";
-import Loader from "./components/Loader"; // Importa el loader que creamos
+import Loader from "./components/Loader";
 
+// Ruta pública: solo accesible si el usuario NO está logueado
 function PublicRoute({ children }) {
 	const user = useAuthStore((state) => state.user);
 	const loading = useAuthStore((state) => state.loading);
 
 	if (loading) return <Loader />;
-
 	return user ? <Navigate to="/" replace /> : children;
+}
+
+// Ruta privada: solo accesible si el usuario ESTÁ logueado
+function PrivateRoute({ children }) {
+	const user = useAuthStore((state) => state.user);
+	const loading = useAuthStore((state) => state.loading);
+
+	if (loading) return <Loader />;
+	return user ? children : <Navigate to="/user-login" replace />;
 }
 
 function AppContent() {
@@ -51,9 +61,15 @@ function AppContent() {
 					}
 				/>
 				<Route path="/" element={<Landing />} />
-			</Routes>
-			<Routes>
 				<Route path="/search-results" element={<SearchResultsPage />} />
+				<Route
+					path="/user-profile"
+					element={
+						<PrivateRoute>
+							<UserProfile />
+						</PrivateRoute>
+					}
+				/>
 			</Routes>
 			<Footer />
 		</>

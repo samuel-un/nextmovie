@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import { validateLoginForm } from "../utils/validation";
+import Swal from "sweetalert2";
 import "./AuthForm.css";
 
 const showIcon =
@@ -16,40 +17,68 @@ export default function LoginForm() {
 
 	const [form, setForm] = useState({ email: "", password: "" });
 	const [showPassword, setShowPassword] = useState(false);
-	const [localError, setLocalError] = useState("");
-	const [success, setSuccess] = useState("");
 
 	const navigate = useNavigate();
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
 		setForm((prev) => ({ ...prev, [name]: value }));
-		setLocalError("");
-		setSuccess("");
+		// Ya no manejamos error o success localmente porque usamos SweetAlert
 	};
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		setLocalError("");
-		setSuccess("");
 
 		const error = validateLoginForm(form);
 		if (error) {
-			setLocalError(error);
+			await Swal.fire({
+				icon: "error",
+				title: "Error",
+				text: error,
+				confirmButtonText: "Aceptar",
+				customClass: {
+					popup: "swal2-popup",
+					title: "swal2-title",
+					content: "swal2-content",
+					confirmButton: "swal2-confirm",
+				},
+			});
 			return;
 		}
 
 		try {
 			await login(form.email, form.password);
-			setSuccess("Login successful!");
+			await Swal.fire({
+				icon: "success",
+				title: "Login exitoso",
+				text: "Has iniciado sesión correctamente.",
+				confirmButtonText: "Aceptar",
+				customClass: {
+					popup: "swal2-popup",
+					title: "swal2-title",
+					content: "swal2-content",
+					confirmButton: "swal2-confirm",
+				},
+			});
 			setForm({ email: "", password: "" });
-			setTimeout(() => navigate("/"), 900);
+			navigate("/");
 		} catch (err) {
 			const msg =
 				err.response?.data?.error ||
 				err.response?.data?.message ||
-				"Login failed. Please try again.";
-			setLocalError(msg);
+				"Login fallido. Por favor, inténtalo de nuevo.";
+			await Swal.fire({
+				icon: "error",
+				title: "Error",
+				text: msg,
+				confirmButtonText: "Aceptar",
+				customClass: {
+					popup: "swal2-popup",
+					title: "swal2-title",
+					content: "swal2-content",
+					confirmButton: "swal2-confirm",
+				},
+			});
 		}
 	};
 
@@ -107,16 +136,7 @@ export default function LoginForm() {
 					</div>
 				</div>
 
-				{(localError || storeError) && (
-					<div className="error" role="alert">
-						{localError || storeError}
-					</div>
-				)}
-				{success && (
-					<div className="success" role="status">
-						{success}
-					</div>
-				)}
+				{/* Eliminados los mensajes inline de error/éxito */}
 
 				<button
 					type="submit"

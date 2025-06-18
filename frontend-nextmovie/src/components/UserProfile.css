@@ -1,0 +1,446 @@
+:root {
+	--black: #000000;
+	--dark-gray-1: #1e1e1e;
+	--dark-gray-2: #5b5b5b;
+	--light-gray: #b0b0b0;
+	--white: #ffffff;
+	--very-dark-blue: #060d17;
+	--purple-dark: #44326b;
+	--violet: #9f42c6;
+	--intense-red: #ed1c24;
+	--shadow-dark: rgba(0, 0, 0, 0.7);
+	--shadow-violet: rgba(159, 66, 198, 0.5);
+	--font-main: "Segoe UI", sans-serif;
+}
+
+body {
+	margin: 0;
+	background-color: var(--very-dark-blue);
+	color: var(--white);
+	font-family: var(--font-main);
+	overflow-x: hidden;
+}
+
+/* Variables que ya tienes definidas en :root */
+
+/* Personalización SweetAlert2 */
+.swal2-popup {
+	background: var(--dark-gray-1);
+	color: var(--white);
+	font-family: var(--font-main);
+	box-shadow: 0 0 15px var(--shadow-violet);
+}
+
+.swal2-title {
+	color: var(--violet);
+}
+
+.swal2-content {
+	color: var(--light-gray);
+}
+
+.swal2-confirm {
+	background-color: var(--purple-dark);
+	color: var(--white);
+	font-weight: bold;
+	border: none;
+	box-shadow: 0 0 5px var(--shadow-violet);
+}
+
+.swal2-cancel {
+	background-color: var(--dark-gray-2);
+	color: var(--light-gray);
+	border: none;
+}
+
+.swal2-confirm:hover {
+	background-color: var(--violet);
+	box-shadow: 0 0 10px var(--shadow-violet);
+}
+
+.swal2-cancel:hover {
+	background-color: var(--black);
+	color: var(--intense-red);
+}
+
+.user-profile {
+	width: 100%;
+	min-height: 100vh;
+	background-color: var(--very-dark-blue);
+	overflow-x: hidden;
+	padding: 2rem 1rem; /* Padding para separar del borde */
+	box-sizing: border-box;
+}
+
+/* Header con avatar, nombre, estadísticas, trofeos */
+.profile-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 2rem 1rem;
+	background: url("https://res.cloudinary.com/dgbngcvkl/image/upload/v1750232007/background-profile_kwkr7l.png")
+		no-repeat center;
+	background-size: cover;
+	box-shadow: inset 0 -4px 12px var(--shadow-dark);
+	gap: 2rem;
+	flex-wrap: wrap;
+	margin-bottom: 2rem;
+}
+
+.avatar {
+	background-color: var(--violet);
+	padding: 0.6rem;
+	border-radius: 50%;
+	box-shadow: 0 0 12px var(--shadow-violet);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 90px;
+	height: 90px;
+	overflow: hidden;
+	flex-shrink: 0;
+}
+
+.avatar img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	border-radius: 50%;
+}
+
+.list-title img.list-icon {
+	width: 24px;
+	height: 24px;
+	object-fit: contain;
+	background-color: var(--white);
+	padding: 4px;
+	border-radius: 6px;
+	box-shadow: 0 2px 4px var(--shadow-dark);
+}
+
+.user-details {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.user-details h2 {
+	color: var(--violet);
+	background-color: var(--white);
+	padding: 0.5rem 1rem;
+	border-radius: 6px;
+	width: fit-content;
+	font-size: 1.2rem;
+}
+
+.stats span {
+	background-color: var(--white);
+	color: var(--violet);
+	padding: 0.3rem 0.8rem;
+	margin-right: 0.5rem;
+	border-radius: 5px;
+	font-size: 0.9rem;
+}
+
+.trophies {
+	display: flex;
+	gap: 1rem;
+	align-items: center;
+	flex-wrap: wrap;
+	margin-top: 1rem;
+}
+
+.trophy {
+	height: 50px;
+	width: auto;
+}
+
+/* Secciones con márgenes y padding uniformes */
+.lists-section {
+	padding: 2rem 0;
+	margin-bottom: 3rem;
+}
+
+.lists-section .inner-container {
+	display: flex;
+	flex-direction: column;
+	gap: 3rem;
+}
+
+.lists-row {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 2.5rem;
+}
+
+.list-column {
+	display: flex;
+	flex-direction: column;
+	gap: 2.5rem;
+}
+
+.list-title {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	margin-bottom: 0.6rem;
+}
+
+.list-title span {
+	background-color: var(--white);
+	color: var(--black);
+	font-weight: bold;
+	padding: 0.3rem 0.7rem;
+	border-radius: 8px;
+	box-shadow: 0 2px 4px var(--shadow-dark);
+	font-size: 0.9rem;
+}
+
+.list-title h3 {
+	background-color: var(--white);
+	color: var(--violet);
+	padding: 0.4rem 1rem;
+	border-radius: 6px;
+	font-size: 1rem;
+}
+
+/* Grid flexible y con gap mejorado para posters */
+.media-grid {
+	display: flex;
+	gap: 1.25rem;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+}
+
+/* Scoped Póster dentro de user-profile */
+.user-profile .poster {
+	position: relative;
+	width: 90px;
+	height: 135px;
+	object-fit: cover;
+	border-radius: 8px;
+	box-shadow: 0 2px 6px var(--shadow-violet);
+	cursor: pointer;
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
+	outline-offset: 3px;
+}
+
+/* Zoom en hover y foco */
+.user-profile .poster:hover,
+.user-profile .poster:focus {
+	transform: scale(1.12);
+	box-shadow: 0 6px 14px var(--shadow-violet);
+	z-index: 10;
+	outline: 3px solid var(--violet);
+}
+
+/* Tooltip texto al pasar ratón */
+.user-profile .poster::after {
+	content: attr(data-title);
+	position: absolute;
+	bottom: -2.4rem;
+	left: 50%;
+	transform: translateX(-50%);
+	background-color: var(--violet);
+	color: var(--white);
+	font-size: 0.8rem;
+	padding: 0.3rem 0.6rem;
+	border-radius: 5px;
+	white-space: nowrap;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.3s ease;
+}
+
+.user-profile .poster:hover::after,
+.user-profile .poster:focus::after {
+	opacity: 1;
+}
+
+.user-profile .poster-link {
+	position: relative;
+	display: inline-block;
+	cursor: pointer;
+	outline: none;
+	transition: transform 0.3s ease;
+}
+
+.user-profile .poster-link:hover,
+.user-profile .poster-link:focus-visible {
+	transform: scale(1.5);
+	z-index: 2;
+}
+
+.user-profile .poster-link::after {
+	content: attr(data-title);
+	position: absolute;
+	bottom: -2.2rem;
+	left: 50%;
+	transform: translateX(-50%);
+	background-color: var(--violet);
+	color: var(--white);
+	padding: 0.2rem 0.6rem;
+	font-size: 0.75rem;
+	border-radius: 4px;
+	white-space: nowrap;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.3s ease;
+	box-shadow: 0 2px 4px var(--shadow-dark);
+}
+
+.user-profile .poster-link:hover::after,
+.user-profile .poster-link:focus-visible::after {
+	opacity: 1;
+	pointer-events: auto;
+	bottom: -2.5rem;
+}
+
+/* Gestión de perfil */
+.profile-settings {
+	background-color: var(--violet);
+	color: var(--white);
+	padding: 2rem 1rem;
+	margin-top: 3rem;
+	border-radius: 12px;
+	box-shadow: 0 4px 10px var(--shadow-violet);
+}
+
+.profile-settings h3 {
+	text-transform: uppercase;
+	font-size: 1.1rem;
+	letter-spacing: 1px;
+	margin-bottom: 1.5rem;
+	color: var(--very-dark-blue);
+	font-weight: bold;
+}
+
+.settings-form {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2rem;
+}
+
+.settings-form .left,
+.settings-form .right {
+	flex: 1;
+	min-width: 250px;
+	display: flex;
+	flex-direction: column;
+	gap: 1.2rem;
+}
+
+.settings-form label {
+	font-size: 1rem;
+	font-weight: 700;
+	color: var(--white);
+}
+
+.settings-form input {
+	padding: 0.8rem 1.2rem;
+	border-radius: 6px;
+	border: none;
+	background-color: var(--white);
+	color: var(--dark-gray-1);
+	font-size: 1rem;
+	width: 100%;
+	transition: box-shadow 0.2s ease;
+}
+
+.settings-form input:focus {
+	outline: none;
+	box-shadow: 0 0 8px var(--violet);
+}
+
+.apply-btn {
+	margin-top: 2rem;
+	padding: 0.9rem 1.8rem;
+	font-size: 1rem;
+	background-color: var(--very-dark-blue);
+	color: var(--white);
+	border: none;
+	border-radius: 8px;
+	cursor: pointer;
+	box-shadow: 0 2px 6px var(--shadow-dark);
+	transition: background-color 0.2s ease;
+}
+
+.apply-btn:hover,
+.apply-btn:focus {
+	background-color: var(--dark-gray-2);
+	outline: none;
+}
+
+/* Contenedor interior para centrar contenido sin afectar el background */
+.inner-container {
+	width: 100%;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 0 1rem;
+	box-sizing: border-box;
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+	.profile-header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 1rem;
+		padding: 1.5rem 1rem;
+	}
+
+	.lists-section {
+		padding: 1.5rem 0;
+	}
+
+	.lists-row {
+		grid-template-columns: 1fr;
+		gap: 2rem;
+	}
+
+	.trophies {
+		justify-content: flex-start;
+	}
+
+	.settings-form {
+		flex-direction: column;
+	}
+
+	.avatar {
+		width: 72px;
+		height: 72px;
+	}
+
+	.user-details h2 {
+		font-size: 1rem;
+	}
+
+	.stats span {
+		font-size: 0.85rem;
+		padding: 0.3rem 0.7rem;
+	}
+
+	.user-profile .poster {
+		width: 75px;
+		height: 112px;
+	}
+}
+
+@media screen and (max-width: 480px) {
+	.profile-header {
+		padding: 1rem 1rem;
+	}
+
+	.list-title h3 {
+		font-size: 0.9rem;
+	}
+
+	.media-grid {
+		justify-content: center;
+	}
+
+	.user-profile .poster {
+		width: 65px;
+		height: 97px;
+	}
+}

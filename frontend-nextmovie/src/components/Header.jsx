@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, createSearchParams } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
+import Swal from "sweetalert2";
 import "./Header.css";
 
 export default function Header() {
@@ -46,6 +47,40 @@ export default function Header() {
 			firstMenuItemRef.current.focus();
 		}
 	}, [menuOpen]);
+
+	const confirmLogout = () => {
+		Swal.fire({
+			title: "¿Quieres cerrar sesión?",
+			icon: "warning",
+			showCancelButton: true,
+			confirmButtonText: "Sí, cerrar sesión",
+			cancelButtonText: "Cancelar",
+			customClass: {
+				popup: "swal2-popup",
+				title: "swal2-title",
+				content: "swal2-content",
+				confirmButton: "swal2-confirm",
+				cancelButton: "swal2-cancel",
+			},
+		}).then((result) => {
+			if (result.isConfirmed) {
+				logout();
+				Swal.fire({
+					icon: "success",
+					title: "Sesión cerrada",
+					text: "Has cerrado sesión correctamente.",
+					confirmButtonText: "Aceptar",
+					customClass: {
+						popup: "swal2-popup",
+						title: "swal2-title",
+						content: "swal2-content",
+						confirmButton: "swal2-confirm",
+					},
+				});
+				navigate("/");
+			}
+		});
+	};
 
 	return (
 		<header className="nm-header">
@@ -128,8 +163,7 @@ export default function Header() {
 								tabIndex={menuOpen ? 0 : -1}
 								onClick={() => {
 									setMenuOpen(false);
-									logout();
-									navigate("/");
+									confirmLogout();
 								}}
 							>
 								Log out

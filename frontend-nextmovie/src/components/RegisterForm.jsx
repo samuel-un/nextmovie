@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useNavigate } from "react-router-dom";
 import { validateRegisterForm } from "../utils/validation";
+import Swal from "sweetalert2";
 import "./AuthForm.css";
 
 const showIcon =
@@ -24,8 +25,6 @@ export default function RegisterForm() {
 	const loading = useAuthStore((state) => state.loading);
 	const storeError = useAuthStore((state) => state.error);
 
-	const [localError, setLocalError] = useState("");
-	const [success, setSuccess] = useState("");
 	const navigate = useNavigate();
 
 	const handleChange = (e) => {
@@ -34,8 +33,7 @@ export default function RegisterForm() {
 			...prev,
 			[name]: type === "checkbox" ? checked : value,
 		}));
-		setLocalError("");
-		setSuccess("");
+		// No usamos localError ni success porque usaremos Swal
 	};
 
 	const handleSubmit = async (e) => {
@@ -43,7 +41,12 @@ export default function RegisterForm() {
 
 		const error = validateRegisterForm(form);
 		if (error) {
-			setLocalError(error);
+			await Swal.fire({
+				icon: "error",
+				title: "Error",
+				text: error,
+				confirmButtonText: "Aceptar",
+			});
 			return;
 		}
 
@@ -54,10 +57,24 @@ export default function RegisterForm() {
 				password: form.password,
 				password_confirmation: form.repeatPassword,
 			});
-			setSuccess("Account created successfully!");
+			await Swal.fire({
+				icon: "success",
+				title: "Cuenta creada",
+				text: "Tu cuenta ha sido creada exitosamente.",
+				confirmButtonText: "Aceptar",
+			});
 			navigate("/");
 		} catch (err) {
-			setSuccess("");
+			const msg =
+				err.response?.data?.error ||
+				err.response?.data?.message ||
+				"Error al crear la cuenta. Por favor, inténtalo de nuevo.";
+			await Swal.fire({
+				icon: "error",
+				title: "Error",
+				text: msg,
+				confirmButtonText: "Aceptar",
+			});
 		}
 	};
 
@@ -156,10 +173,9 @@ export default function RegisterForm() {
 						the <a href="#">Privacy Policy</a>
 					</label>
 				</div>
-				{(localError || storeError) && (
-					<div className="error">{localError || storeError}</div>
-				)}
-				{success && <div className="success">{success}</div>}
+
+				{/* Eliminados mensajes inline de error y success */}
+
 				<button
 					type="submit"
 					className="create-account"
