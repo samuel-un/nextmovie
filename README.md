@@ -120,11 +120,29 @@ The application will be available at [http://localhost:5173](http://localhost:51
 
 <h1>🖼️ Frontend Screenshots</h1>
 
+**Landing and Header:**  
+![Landing and Header](https://res.cloudinary.com/dgbngcvkl/image/upload/v1750452538/Landing_yi7c51.png)
+
+**Landing and Footer:**  
+![Landing and Footer](https://res.cloudinary.com/dgbngcvkl/image/upload/v1750451924/Landing-2_yqrpwx.png)
+
 **User Registration:**  
 ![User Registration](https://res.cloudinary.com/dgbngcvkl/image/upload/v1747050135/register_irv5jd.png)
 
 **User Login:**  
 ![User Login](https://res.cloudinary.com/dgbngcvkl/image/upload/v1747050135/login_k4r4fg.png)
+
+**Search Results:**  
+![Search Results](https://res.cloudinary.com/dgbngcvkl/image/upload/v1750451946/search-results_m5l7ew.png)
+
+**Detail Page:**  
+![Detail Page](https://res.cloudinary.com/dgbngcvkl/image/upload/v1750451924/detail-page_dxmdok.png)
+
+**User Profile:**  
+![User Profile](https://res.cloudinary.com/dgbngcvkl/image/upload/v1750451925/user-profile_h8dbik.png)
+
+**User Profile 2:**  
+![User Profile 2](https://res.cloudinary.com/dgbngcvkl/image/upload/v1750451923/user-profile-2_zddcna.png)
 
 ---
 
