@@ -12,7 +12,8 @@ class CommentControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function it_creates_a_comment()
+	/** @test */
+	public function it_creates_a_comment()
     {
         $user = User::factory()->create();
         $movie = Movie::factory()->create(['id_tmdb' => 123456]);
@@ -31,6 +32,7 @@ class CommentControllerTest extends TestCase
         ]);
     }
 
+	/** @test */
     public function it_updates_a_comment()
     {
         $user = User::factory()->create();
@@ -54,6 +56,7 @@ class CommentControllerTest extends TestCase
         ]);
     }
 
+	/** @test */
     public function it_deletes_a_comment()
     {
         $user = User::factory()->create();

@@ -12,6 +12,7 @@ class UserListControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+	/** @test */
     public function it_creates_a_user_list()
     {
         $user = User::factory()->create();
@@ -34,7 +35,8 @@ class UserListControllerTest extends TestCase
         ]);
     }
 
-    public function it_deletes_a_user_list()
+	/** @test */
+	public function it_deletes_a_user_list()
     {
         $user = User::factory()->create();
 

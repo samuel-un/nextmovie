@@ -12,7 +12,7 @@ class RatingControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    #[\PHPUnit\Framework\Attributes\Test]
+    /** @test */
     public function it_creates_a_rating()
     {
         $user = User::factory()->create();
@@ -38,7 +38,7 @@ class RatingControllerTest extends TestCase
         ]);
     }
 
-    #[\PHPUnit\Framework\Attributes\Test]
+    /** @test */
     public function it_updates_a_rating()
     {
         $user = User::factory()->create();

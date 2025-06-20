@@ -10,6 +10,7 @@ class UserControllerTest extends TestCase
 {
 	use RefreshDatabase;
 
+	/** @test */
 	public function it_fetches_all_users()
 	{
 		$user1 = User::factory()->create();
@@ -24,6 +25,7 @@ class UserControllerTest extends TestCase
 		$response->assertJsonFragment(['id' => $user2->id]);
 	}
 
+	/** @test */
 	public function it_updates_a_user()
 	{
 		$user = User::factory()->create(['password' => bcrypt('password123')]);
@@ -44,6 +46,7 @@ class UserControllerTest extends TestCase
 		]);
 	}
 
+	/** @test */
 	public function it_deletes_a_user()
 	{
 		$user = User::factory()->create();
