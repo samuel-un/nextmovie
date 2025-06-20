@@ -4,7 +4,7 @@ import axios from "axios";
 const API_URL = "http://localhost:8000/api";
 
 // Instancia de axios con interceptor para JWT
-const api = axios.create({
+export const api = axios.create({
 	baseURL: API_URL,
 });
 

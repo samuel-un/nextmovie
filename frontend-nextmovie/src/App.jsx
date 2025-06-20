@@ -7,6 +7,7 @@ import Footer from "./components/Footer";
 import Landing from "./components/Landing";
 import SearchResultsPage from "./components/SearchResultsPage";
 import UserProfile from "./components/UserProfile";
+import DetailPage from "./components/DetailPage"; // <-- Añadido
 import { useAuthStore } from "./store/useAuthStore";
 import Loader from "./components/Loader";
 
@@ -69,6 +70,10 @@ function AppContent() {
 							<UserProfile />
 						</PrivateRoute>
 					}
+				/>
+				<Route
+					path="/detail-page/:media_type/:id"
+					element={<DetailPage />}
 				/>
 			</Routes>
 			<Footer />

@@ -19,11 +19,10 @@ body {
 	color: var(--white);
 	font-family: var(--font-main);
 	overflow-x: hidden;
+	font-size: 16px; /* Mejora legibilidad en móviles */
 }
 
-/* Variables que ya tienes definidas en :root */
-
-/* Personalización SweetAlert2 */
+/* SweetAlert2 */
 .swal2-popup {
 	background: var(--dark-gray-1);
 	color: var(--white);
@@ -63,16 +62,16 @@ body {
 	color: var(--intense-red);
 }
 
+/* Perfil */
 .user-profile {
 	width: 100%;
 	min-height: 100vh;
 	background-color: var(--very-dark-blue);
 	overflow-x: hidden;
-	padding: 2rem 1rem; /* Padding para separar del borde */
+	padding: 2rem 1rem;
 	box-sizing: border-box;
 }
 
-/* Header con avatar, nombre, estadísticas, trofeos */
 .profile-header {
 	display: flex;
 	align-items: center;
@@ -106,16 +105,6 @@ body {
 	height: 100%;
 	object-fit: cover;
 	border-radius: 50%;
-}
-
-.list-title img.list-icon {
-	width: 24px;
-	height: 24px;
-	object-fit: contain;
-	background-color: var(--white);
-	padding: 4px;
-	border-radius: 6px;
-	box-shadow: 0 2px 4px var(--shadow-dark);
 }
 
 .user-details {
@@ -155,7 +144,6 @@ body {
 	width: auto;
 }
 
-/* Secciones con márgenes y padding uniformes */
 .lists-section {
 	padding: 2rem 0;
 	margin-bottom: 3rem;
@@ -184,6 +172,17 @@ body {
 	align-items: center;
 	gap: 0.6rem;
 	margin-bottom: 0.6rem;
+	justify-content: flex-start;
+}
+
+.list-title img.list-icon {
+	width: 24px;
+	height: 24px;
+	object-fit: contain;
+	background-color: var(--white);
+	padding: 4px;
+	border-radius: 6px;
+	box-shadow: 0 2px 4px var(--shadow-dark);
 }
 
 .list-title span {
@@ -204,7 +203,6 @@ body {
 	font-size: 1rem;
 }
 
-/* Grid flexible y con gap mejorado para posters */
 .media-grid {
 	display: flex;
 	gap: 1.25rem;
@@ -212,7 +210,6 @@ body {
 	justify-content: flex-start;
 }
 
-/* Scoped Póster dentro de user-profile */
 .user-profile .poster {
 	position: relative;
 	width: 90px;
@@ -225,7 +222,6 @@ body {
 	outline-offset: 3px;
 }
 
-/* Zoom en hover y foco */
 .user-profile .poster:hover,
 .user-profile .poster:focus {
 	transform: scale(1.12);
@@ -234,7 +230,6 @@ body {
 	outline: 3px solid var(--violet);
 }
 
-/* Tooltip texto al pasar ratón */
 .user-profile .poster::after {
 	content: attr(data-title);
 	position: absolute;
@@ -296,7 +291,6 @@ body {
 	bottom: -2.5rem;
 }
 
-/* Gestión de perfil */
 .profile-settings {
 	background-color: var(--violet);
 	color: var(--white);
@@ -337,7 +331,7 @@ body {
 }
 
 .settings-form input {
-	padding: 0.8rem 1.2rem;
+	padding: 1rem;
 	border-radius: 6px;
 	border: none;
 	background-color: var(--white);
@@ -354,8 +348,8 @@ body {
 
 .apply-btn {
 	margin-top: 2rem;
-	padding: 0.9rem 1.8rem;
-	font-size: 1rem;
+	padding: 1rem 2rem;
+	font-size: 1.05rem;
 	background-color: var(--very-dark-blue);
 	color: var(--white);
 	border: none;
@@ -371,7 +365,6 @@ body {
 	outline: none;
 }
 
-/* Contenedor interior para centrar contenido sin afectar el background */
 .inner-container {
 	width: 100%;
 	max-width: 1200px;
@@ -387,6 +380,20 @@ body {
 		align-items: flex-start;
 		gap: 1rem;
 		padding: 1.5rem 1rem;
+	}
+
+	.avatar {
+		width: 72px;
+		height: 72px;
+	}
+
+	.user-details h2 {
+		font-size: 1rem;
+	}
+
+	.stats span {
+		font-size: 0.85rem;
+		padding: 0.3rem 0.7rem;
 	}
 
 	.lists-section {
@@ -406,20 +413,6 @@ body {
 		flex-direction: column;
 	}
 
-	.avatar {
-		width: 72px;
-		height: 72px;
-	}
-
-	.user-details h2 {
-		font-size: 1rem;
-	}
-
-	.stats span {
-		font-size: 0.85rem;
-		padding: 0.3rem 0.7rem;
-	}
-
 	.user-profile .poster {
 		width: 75px;
 		height: 112px;
@@ -428,7 +421,24 @@ body {
 
 @media screen and (max-width: 480px) {
 	.profile-header {
-		padding: 1rem 1rem;
+		padding: 1rem;
+	}
+
+	.avatar {
+		margin: 0 auto;
+	}
+
+	.user-details {
+		align-items: center;
+		text-align: center;
+	}
+
+	.list-title {
+		justify-content: center;
+	}
+
+	.trophies {
+		justify-content: center;
 	}
 
 	.list-title h3 {
@@ -442,5 +452,16 @@ body {
 	.user-profile .poster {
 		width: 65px;
 		height: 97px;
+	}
+}
+
+@media screen and (max-width: 360px) {
+	.user-profile .poster {
+		width: 55px;
+		height: 82px;
+	}
+
+	.list-title h3 {
+		font-size: 0.85rem;
 	}
 }

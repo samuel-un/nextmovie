@@ -23,7 +23,6 @@ export default function RegisterForm() {
 
 	const register = useAuthStore((state) => state.register);
 	const loading = useAuthStore((state) => state.loading);
-	const storeError = useAuthStore((state) => state.error);
 
 	const navigate = useNavigate();
 
@@ -33,7 +32,6 @@ export default function RegisterForm() {
 			...prev,
 			[name]: type === "checkbox" ? checked : value,
 		}));
-		// No usamos localError ni success porque usaremos Swal
 	};
 
 	const handleSubmit = async (e) => {
@@ -45,7 +43,7 @@ export default function RegisterForm() {
 				icon: "error",
 				title: "Error",
 				text: error,
-				confirmButtonText: "Aceptar",
+				confirmButtonText: "Accept",
 			});
 			return;
 		}
@@ -59,21 +57,21 @@ export default function RegisterForm() {
 			});
 			await Swal.fire({
 				icon: "success",
-				title: "Cuenta creada",
-				text: "Tu cuenta ha sido creada exitosamente.",
-				confirmButtonText: "Aceptar",
+				title: "Account Created",
+				text: "Your account has been successfully created.",
+				confirmButtonText: "Accept",
 			});
 			navigate("/");
 		} catch (err) {
 			const msg =
 				err.response?.data?.error ||
 				err.response?.data?.message ||
-				"Error al crear la cuenta. Por favor, inténtalo de nuevo.";
+				"Error creating the account. Please try again.";
 			await Swal.fire({
 				icon: "error",
 				title: "Error",
 				text: msg,
-				confirmButtonText: "Aceptar",
+				confirmButtonText: "Accept",
 			});
 		}
 	};
@@ -173,9 +171,6 @@ export default function RegisterForm() {
 						the <a href="#">Privacy Policy</a>
 					</label>
 				</div>
-
-				{/* Eliminados mensajes inline de error y success */}
-
 				<button
 					type="submit"
 					className="create-account"
@@ -186,8 +181,7 @@ export default function RegisterForm() {
 				<div className="signin-section">
 					<hr className="divider" />
 					<div className="signin-link">
-						Already have an account?{" "}
-						<a href="/user-login">Sign in →</a>
+						Already have an account? <a href="/user-login">Sign in →</a>
 					</div>
 				</div>
 			</form>

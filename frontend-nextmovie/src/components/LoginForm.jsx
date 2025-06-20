@@ -50,9 +50,9 @@ export default function LoginForm() {
 			await login(form.email, form.password);
 			await Swal.fire({
 				icon: "success",
-				title: "Login exitoso",
-				text: "Has iniciado sesión correctamente.",
-				confirmButtonText: "Aceptar",
+				title: "Login successful",
+				text: "You have logged in successfully.",
+				confirmButtonText: "OK",
 				customClass: {
 					popup: "swal2-popup",
 					title: "swal2-title",
@@ -66,12 +66,12 @@ export default function LoginForm() {
 			const msg =
 				err.response?.data?.error ||
 				err.response?.data?.message ||
-				"Login fallido. Por favor, inténtalo de nuevo.";
+				"Login failed. Please try again.";
 			await Swal.fire({
 				icon: "error",
 				title: "Error",
 				text: msg,
-				confirmButtonText: "Aceptar",
+				confirmButtonText: "OK",
 				customClass: {
 					popup: "swal2-popup",
 					title: "swal2-title",

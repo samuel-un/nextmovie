@@ -105,7 +105,28 @@ export default function Landing() {
 					<div className="movies-grid" aria-live="polite">
 						{!loading &&
 							movies.map((movie) => (
-								<div key={movie.id} className="movie-card">
+								<div
+									key={movie.id}
+									className="movie-card"
+									onClick={() =>
+										navigate(
+											`/detail-page/movie/${movie.id}`
+										)
+									}
+									style={{ cursor: "pointer" }}
+									role="button"
+									tabIndex={0}
+									onKeyDown={(e) => {
+										if (
+											e.key === "Enter" ||
+											e.key === " "
+										) {
+											navigate(
+												`/detail-page/movie/${movie.id}`
+											);
+										}
+									}}
+								>
 									<img
 										loading="lazy"
 										src={

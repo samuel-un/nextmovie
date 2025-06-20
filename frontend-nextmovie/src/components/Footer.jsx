@@ -22,7 +22,7 @@ export default function Footer() {
 					<span className="footer-dev">Developed by Samuel U.N</span>
 					<div className="footer-icons">
 						<a
-							href="https://github.com/"
+							href="https://github.com/samuel-un"
 							target="_blank"
 							rel="noopener noreferrer"
 							aria-label="GitHub"
@@ -36,7 +36,7 @@ export default function Footer() {
 							/>
 						</a>
 						<a
-							href="https://linkedin.com/"
+							href="https://www.linkedin.com/in/samuel-un/"
 							target="_blank"
 							rel="noopener noreferrer"
 							aria-label="LinkedIn"

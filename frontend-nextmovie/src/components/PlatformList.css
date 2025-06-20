@@ -1,0 +1,43 @@
+.available-on {
+	margin-top: 0.5rem;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.4rem;
+}
+
+.available-label {
+	font-weight: 600;
+	font-size: 0.9rem;
+	color: var(--light-gray);
+	user-select: none;
+}
+
+.platforms-list {
+	display: flex;
+	gap: 0.6rem;
+	flex-wrap: wrap;
+	overflow: visible;
+	position: relative;
+}
+
+.platform-icon {
+	height: 30px;
+	width: auto;
+	transition: transform 0.3s ease, height 0.3s ease;
+	cursor: pointer;
+	margin-top: 5px;
+	border-radius: 6px;
+	filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.4));
+	position: relative;
+	z-index: 1;
+}
+
+.platform-icon:hover,
+.platform-icon:focus {
+	height: 50px;
+	transform: scale(1.3);
+	z-index: 10;
+	outline: none;
+	translate: 0 -10%;
+}

@@ -50,11 +50,11 @@ export default function Header() {
 
 	const confirmLogout = () => {
 		Swal.fire({
-			title: "¿Quieres cerrar sesión?",
+			title: "Do you want to log out?",
 			icon: "warning",
 			showCancelButton: true,
-			confirmButtonText: "Sí, cerrar sesión",
-			cancelButtonText: "Cancelar",
+			confirmButtonText: "Yes, log out",
+			cancelButtonText: "Cancel",
 			customClass: {
 				popup: "swal2-popup",
 				title: "swal2-title",
@@ -67,9 +67,9 @@ export default function Header() {
 				logout();
 				Swal.fire({
 					icon: "success",
-					title: "Sesión cerrada",
-					text: "Has cerrado sesión correctamente.",
-					confirmButtonText: "Aceptar",
+					title: "Logged out",
+					text: "You have successfully logged out.",
+					confirmButtonText: "OK",
 					customClass: {
 						popup: "swal2-popup",
 						title: "swal2-title",
