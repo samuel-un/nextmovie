@@ -1,4 +1,3 @@
-/* Colores predeterminados */
 :root {
 	--bg-dark: #0c0c0c;
 	--bg-card: #1a1a1a;
@@ -16,7 +15,6 @@
 	--font-size-xl: clamp(1.5rem, 3vw, 2.4rem);
 }
 
-/* Estilos generales */
 body {
 	margin: 0;
 	font-family: var(--font-family);
@@ -41,7 +39,6 @@ button {
 	transition: all var(--transition);
 }
 
-/* Detalle de la página */
 .detail-page {
 	background-size: cover;
 	background-position: center;
@@ -84,7 +81,6 @@ button {
 	gap: 24px;
 }
 
-/* Títulos */
 .detail-title {
 	font-size: var(--font-size-xl);
 	font-weight: 700;
@@ -98,7 +94,6 @@ button {
 	color: var(--text-muted);
 }
 
-/* Reseñas y calificaciones */
 .detail-ratings {
 	display: flex;
 	align-items: center;
@@ -117,7 +112,6 @@ button {
 	color: var(--text-muted);
 }
 
-/* Controles de plataforma */
 .platform-list {
 	margin-top: 12px;
 }
@@ -128,7 +122,6 @@ button {
 	margin-bottom: 8px;
 }
 
-/* Ficha técnica */
 .detail-tech-sheet {
 	background-color: var(--bg-card);
 	padding: 24px;
@@ -153,7 +146,6 @@ button {
 	margin-right: 6px;
 }
 
-/* Botones */
 .detail-buttons {
 	display: flex;
 	flex-wrap: wrap;
@@ -177,7 +169,6 @@ button {
 	transform: scale(1.05);
 }
 
-/* Checkboxes */
 .detail-checkboxes {
 	display: flex;
 	flex-direction: column;
@@ -202,7 +193,6 @@ button {
 	height: 16px;
 }
 
-/* Comentarios */
 .detail-comments {
 	margin-top: 30px;
 	display: flex;
@@ -232,7 +222,6 @@ button {
 	color: var(--text-light);
 }
 
-/* Loading/Error */
 .detail-loading,
 .detail-error {
 	padding: 3rem;
@@ -241,7 +230,6 @@ button {
 	color: var(--text-muted);
 }
 
-/* Breakpoint: Tablets grandes */
 @media (max-width: 1024px) {
 	.detail-container {
 		flex-direction: column;
@@ -250,7 +238,6 @@ button {
 	}
 }
 
-/* Breakpoint: Tablets medianos */
 @media (max-width: 768px) {
 	.detail-title {
 		font-size: 2rem;
@@ -270,7 +257,6 @@ button {
 	}
 }
 
-/* Ajustes adicionales para móviles */
 @media (max-width: 480px) {
 	.detail-title {
 		font-size: 1.8rem;
@@ -326,7 +312,6 @@ button {
 	}
 }
 
-/* Breakpoint: móviles muy pequeños */
 @media (max-width: 360px) {
 	.detail-title {
 		font-size: 1.5rem;

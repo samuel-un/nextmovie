@@ -67,13 +67,13 @@ const DetailPage = () => {
 			setComments((prev) => [newComment, ...prev]);
 
 			showAlert(
-				"Comentario publicado",
-				"Tu comentario se ha añadido correctamente.",
+				"Comment posted",
+				"Your comment has been successfully added.",
 				"success"
 			);
 		} catch (err) {
-			console.error("Error al enviar comentario:", err);
-			showAlert("Error", "No se pudo enviar el comentario.", "error");
+			console.error("Error posting comment:", err);
+			showAlert("Error", "Failed to post comment.", "error");
 		}
 	};
 
@@ -89,7 +89,7 @@ const DetailPage = () => {
 
 	useEffect(() => {
 		if (!media_type || !id) {
-			setError("Faltan parámetros en la URL");
+			setError("Missing parameters in the URL");
 			return;
 		}
 
@@ -134,8 +134,8 @@ const DetailPage = () => {
 					}));
 				setPlatforms(mapped);
 			} catch (error) {
-				console.error("Error al cargar detalles:", error);
-				setError("No se pudo cargar la película o serie.");
+				console.error("Error loading details:", error);
+				setError("Failed to load movie or series.");
 			}
 		};
 
@@ -151,7 +151,7 @@ const DetailPage = () => {
 				);
 				setComments(sorted);
 			} catch (err) {
-				console.error("Error al cargar comentarios:", err);
+				console.error("Error loading comments:", err);
 			}
 		};
 
@@ -196,7 +196,7 @@ const DetailPage = () => {
 				setInWatched(Boolean(isInWatched));
 				setInToWatch(Boolean(isInToWatch));
 			} catch (err) {
-				console.error("Error al cargar listas de usuario:", err);
+				console.error("Error loading user lists:", err);
 				setInWatched(false);
 				setInToWatch(false);
 			}
@@ -210,8 +210,8 @@ const DetailPage = () => {
 	const toggleList = async (type) => {
 		if (!user) {
 			showAlert(
-				"Acceso restringido",
-				"Debes iniciar sesión para usar esta función",
+				"Access restricted",
+				"You must be logged in to use this feature",
 				"warning"
 			);
 			return;
@@ -236,8 +236,8 @@ const DetailPage = () => {
 			const targetList = lists.find((l) => l.name === listName);
 			if (!targetList) {
 				showAlert(
-					"Lista no encontrada",
-					`No se encontró la lista '${listName}'`,
+					"List not found",
+					`The list '${listName}' was not found`,
 					"error"
 				);
 				return;
@@ -253,11 +253,7 @@ const DetailPage = () => {
 						normalizeType(item.media_type) === normalizedMediaType
 				);
 				if (!item) {
-					showAlert(
-						"Error",
-						"Elemento no encontrado en la lista",
-						"error"
-					);
+					showAlert("Error", "Item not found in the list", "error");
 					return;
 				}
 				await api.delete(`/user-list-items/${item.id}`, {
@@ -266,12 +262,12 @@ const DetailPage = () => {
 				if (type === "watched") setInWatched(false);
 				else setInToWatch(false);
 				showAlert(
-					"Actualizado",
-					"Se ha quitado de tu lista.",
+					"Updated",
+					"It has been removed from your list.",
 					"success"
 				);
 			} else {
-				const title = movie?.title || movie?.name || "Sin título";
+				const title = movie?.title || movie?.name || "Untitled";
 				const backendType =
 					normalizedMediaType === "series" ? "series" : "movie";
 				await api.post("/user-list-items", {
@@ -283,23 +279,23 @@ const DetailPage = () => {
 				if (type === "watched") setInWatched(true);
 				else setInToWatch(true);
 				showAlert(
-					"Actualizado",
-					"Se ha añadido a tu lista.",
+					"Updated",
+					"It has been added to your list.",
 					"success"
 				);
 			}
 		} catch (err) {
-			console.error("Error al modificar lista:", err);
+			console.error("Error modifying list:", err);
 			showAlert(
 				"Error",
-				"Hubo un problema al actualizar la lista.",
+				"There was an issue updating the list.",
 				"error"
 			);
 		}
 	};
 
 	if (error) return <div className="detail-error">{error}</div>;
-	if (!movie) return <div className="detail-loading">Cargando...</div>;
+	if (!movie) return <div className="detail-loading">Loading...</div>;
 
 	const {
 		type: rawType,
@@ -323,7 +319,7 @@ const DetailPage = () => {
 
 	const normalizedType = normalizeType(rawType);
 
-	const displayTitle = title || name || "Sin título";
+	const displayTitle = title || name || "Untitled";
 
 	const releaseDate = release_date || first_air_date || "";
 	const releaseYear = releaseDate
@@ -343,7 +339,7 @@ const DetailPage = () => {
 			? credits?.crew
 					?.filter((p) => p.job === "Director")
 					.map((d) => d.name)
-					.join(", ") || "No disponible"
+					.join(", ") || "Not available"
 			: null;
 
 	const writers =
@@ -352,22 +348,21 @@ const DetailPage = () => {
 					?.filter((p) => p.department === "Writing")
 					.map((w) => w.name)
 					.slice(0, 3)
-					.join(", ") || "No disponible"
+					.join(", ") || "Not available"
 			: null;
 
 	const creatorsNames =
 		normalizedType === "tv"
-			? created_by?.map((c) => c.name).join(", ") || "No disponible"
+			? created_by?.map((c) => c.name).join(", ") || "Not available"
 			: null;
 
-	const productionCountryName =
-		production_countries?.[0]?.name || "Desconocido";
+	const productionCountryName = production_countries?.[0]?.name || "Unknown";
 
 	const productionCompaniesNames =
 		production_companies
 			?.slice(0, 2)
 			.map((c) => c.name)
-			.join(" + ") || "No disponible";
+			.join(" + ") || "Not available";
 
 	return (
 		<div
@@ -398,54 +393,54 @@ const DetailPage = () => {
 						)}
 
 						<div className="detail-tech-sheet">
-							<h4>Ficha Técnica</h4>
+							<h4>Technical Details</h4>
 							<p>
-								<strong>Estreno:</strong> {releaseYear}
+								<strong>Release:</strong> {releaseYear}
 							</p>
 							{normalizedType === "movie" && (
 								<>
 									<p>
-										<strong>Duración:</strong>{" "}
+										<strong>Duration:</strong>{" "}
 										{durationFormatted}
 									</p>
 									<p>
 										<strong>Director:</strong> {directors}
 									</p>
 									<p>
-										<strong>Guionistas:</strong> {writers}
+										<strong>Writers:</strong> {writers}
 									</p>
 								</>
 							)}
 							{normalizedType === "series" && (
 								<>
 									<p>
-										<strong>Temporadas:</strong>{" "}
+										<strong>Seasons:</strong>{" "}
 										{number_of_seasons}
 									</p>
 									<p>
-										<strong>Episodios:</strong>{" "}
+										<strong>Episodes:</strong>{" "}
 										{number_of_episodes}
 									</p>
 									<p>
-										<strong>Creadores:</strong>{" "}
+										<strong>Creators:</strong>{" "}
 										{creatorsNames}
 									</p>
 								</>
 							)}
 							<p>
-								<strong>País de producción:</strong>{" "}
+								<strong>Production Country:</strong>{" "}
 								{productionCountryName}
 							</p>
 							<p>
-								<strong>Compañías:</strong>{" "}
+								<strong>Companies:</strong>{" "}
 								{productionCompaniesNames}
 							</p>
 							<p>
-								<strong>Idioma original:</strong>{" "}
+								<strong>Original Language:</strong>{" "}
 								{original_language}
 							</p>
 							<p>
-								<strong>Estado:</strong> {status}
+								<strong>Status:</strong> {status}
 							</p>
 						</div>
 
@@ -455,16 +450,16 @@ const DetailPage = () => {
 								className={inWatched ? "btn-added" : ""}
 							>
 								{inWatched
-									? "Quitar de Vistas"
-									: "Añadir a Vistas"}
+									? "Remove from Watched"
+									: "Add to Watched"}
 							</button>
 							<button
 								onClick={() => toggleList("to_watch")}
 								className={inToWatch ? "btn-added" : ""}
 							>
 								{inToWatch
-									? "Quitar de Por ver"
-									: "Añadir a Por ver"}
+									? "Remove from To Watch"
+									: "Add to To Watch"}
 							</button>
 						</div>
 
@@ -487,7 +482,7 @@ const DetailPage = () => {
 						)}
 
 						<div className="detail-comments">
-							<h4>Comentarios proximamente...</h4>
+							<h4>Comments coming soon...</h4>
 						</div>
 					</div>
 				</div>

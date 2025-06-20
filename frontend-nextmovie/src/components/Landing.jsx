@@ -12,7 +12,6 @@ export default function Landing() {
 	const [error, setError] = useState(null);
 	const navigate = useNavigate();
 
-	// Obtener el usuario del store global
 	const user = useAuthStore((state) => state.user);
 
 	useEffect(() => {
@@ -77,7 +76,6 @@ export default function Landing() {
 						</div>
 					</div>
 
-					{/* Mostrar el botón solo si NO está logueado */}
 					{!user ? (
 						<button
 							className="cta-button"

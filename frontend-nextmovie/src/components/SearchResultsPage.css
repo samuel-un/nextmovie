@@ -21,7 +21,7 @@ body {
 }
 
 .search-results-page {
-	padding: 2rem 1rem; /* reduce padding horizontal para móvil */
+	padding: 2rem 1rem;
 	background-color: var(--very-dark-blue);
 	color: var(--white);
 	min-height: 100vh;
@@ -83,7 +83,7 @@ body {
 }
 
 .info {
-	padding: 1rem 1rem; /* padding ajustado para evitar overflow */
+	padding: 1rem 1rem;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;

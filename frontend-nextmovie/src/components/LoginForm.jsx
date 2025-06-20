@@ -23,7 +23,6 @@ export default function LoginForm() {
 	const handleChange = (e) => {
 		const { name, value } = e.target;
 		setForm((prev) => ({ ...prev, [name]: value }));
-		// Ya no manejamos error o success localmente porque usamos SweetAlert
 	};
 
 	const handleSubmit = async (e) => {
@@ -135,8 +134,6 @@ export default function LoginForm() {
 						</button>
 					</div>
 				</div>
-
-				{/* Eliminados los mensajes inline de error/éxito */}
 
 				<button
 					type="submit"

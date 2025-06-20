@@ -31,7 +31,7 @@ function PosterWithFallback({
 
 	React.useEffect(() => {
 		async function fetchPosterFromTMDb() {
-			if (src) return; // ya tenemos poster, no fetch
+			if (src) return;
 			if (!tmdbId) {
 				setSrc(fallback);
 				return;
@@ -66,7 +66,6 @@ function PosterWithFallback({
 			}
 		}
 		fetchPosterFromTMDb();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [poster_path, tmdbId, type]);
 
 	const handleError = async () => {
@@ -360,7 +359,7 @@ export default function UserProfile() {
 													item.tmdbId ||
 													item.movie_id ||
 													item.id
-												} // <--- aquí
+												}
 												alt={item.title || "Untitled"}
 											/>
 										</a>
@@ -394,7 +393,7 @@ export default function UserProfile() {
 									<PosterWithFallback
 										title={item.title || item.name}
 										poster_path={item.poster}
-										tmdbId={item.tmdbId || item.id} // <--- aquí también
+										tmdbId={item.tmdbId || item.id}
 										alt={item.title || "Untitled"}
 										type="tv"
 									/>
@@ -435,7 +434,7 @@ export default function UserProfile() {
 											item.tmdbId ||
 											item.movie_id ||
 											item.id
-										} // <--- aquí
+										}
 										alt={item.title || "Untitled"}
 									/>
 								</a>
@@ -467,7 +466,7 @@ export default function UserProfile() {
 									<PosterWithFallback
 										title={item.title || item.name}
 										poster_path={item.poster}
-										tmdbId={item.tmdbId || item.id} // <--- aquí también
+										tmdbId={item.tmdbId || item.id}
 										alt={item.title || "Untitled"}
 										type="tv"
 									/>

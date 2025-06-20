@@ -141,7 +141,6 @@ body {
 	white-space: nowrap;
 }
 
-/* Botón hamburguesa */
 .nm-header__menu-button {
 	display: flex;
 	flex-direction: column;
@@ -193,7 +192,6 @@ body {
 	transform: translateY(50%) rotate(-45deg);
 }
 
-/* Dropdown */
 .nm-header__dropdown {
 	position: absolute;
 	top: 2.8rem;
@@ -235,7 +233,6 @@ body {
 	background-color: var(--gray-1);
 }
 
-/* Responsive */
 @media (max-width: 965px) and (min-width: 280px) {
 	.nm-header {
 		padding: 0.6rem 1rem;
