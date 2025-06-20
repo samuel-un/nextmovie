@@ -109,6 +109,7 @@ cd frontend-nextmovie
 
 # Install dependencies
 npm install
+# or ( npm install --legacy-peer-deps )
 
 # Start the development server
 npm run dev
