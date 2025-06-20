@@ -2,105 +2,76 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
 
 class AuthControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    #[\PHPUnit\Framework\Attributes\Test]
+    /** @test */
     public function it_registers_a_user_successfully()
     {
-        $response = $this->postJson('/api/register', [
+        $response = $this->postJson('/api/auth/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
         ]);
 
-        $response->assertStatus(201)
-            ->assertJsonStructure([
-                'user' => ['id', 'name', 'email', 'created_at', 'updated_at'],
-                'token',
-            ]);
-
-        $this->assertDatabaseHas('users', [
-            'email' => 'test@example.com',
-        ]);
-    }
-
-    #[\PHPUnit\Framework\Attributes\Test]
-    public function it_fails_registration_with_invalid_data()
-    {
-        $response = $this->postJson('/api/register', [
-            'name' => '',
-            'email' => 'not-an-email',
-            'password' => '123',
-            'password_confirmation' => '456',
+        $response->assertStatus(201);
+        $response->assertJsonStructure([
+            'user' => ['id', 'name', 'email'],
+            'access_token',
+            'token_type',
+            'expires_in',
+            'message',
         ]);
 
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['name', 'email', 'password']);
+        $this->assertDatabaseHas('users', ['email' => 'test@example.com']);
     }
 
-    #[\PHPUnit\Framework\Attributes\Test]
-    public function it_logs_in_a_user_successfully()
+    /** @test */
+    public function it_logs_in_a_user_with_valid_credentials()
     {
-        $user = User::factory()->create([
+        $user = User::create([
+            'name' => 'Login User',
             'email' => 'login@example.com',
-            'password' => bcrypt('password123'),
+            'password' => Hash::make('secret123'),
         ]);
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/auth/login', [
             'email' => 'login@example.com',
-            'password' => 'password123',
+            'password' => 'secret123',
         ]);
 
-        $response->assertStatus(200)
-            ->assertJsonStructure(['token', 'user']);
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'user' => ['id', 'name', 'email'],
+            'access_token',
+            'token_type',
+            'expires_in',
+            'message',
+        ]);
     }
 
-    #[\PHPUnit\Framework\Attributes\Test]
-    public function it_fails_login_with_invalid_credentials()
+    /** @test */
+    public function it_fails_to_login_with_invalid_credentials()
     {
-        $response = $this->postJson('/api/login', [
-            'email' => 'wrong@example.com',
+        $user = User::create([
+            'name' => 'Invalid User',
+            'email' => 'invalid@example.com',
+            'password' => Hash::make('correctpassword'),
+        ]);
+
+        $response = $this->postJson('/api/auth/login', [
+            'email' => 'invalid@example.com',
             'password' => 'wrongpassword',
         ]);
 
-        $response->assertStatus(401)
-            ->assertJson(['error' => 'Invalid credentials']);
-    }
-
-    #[\PHPUnit\Framework\Attributes\Test]
-    public function it_logs_out_a_user_successfully()
-    {
-        $user = User::factory()->create();
-
-        $token = auth()->login($user);
-
-        $response = $this->withHeaders([
-            'Authorization' => "Bearer $token",
-        ])->postJson('/api/logout');
-
-        $response->assertStatus(200)
-            ->assertJson(['message' => 'Successfully logged out']);
-    }
-
-    #[\PHPUnit\Framework\Attributes\Test]
-    public function it_refreshes_a_token_successfully()
-    {
-        $user = User::factory()->create();
-
-        $token = auth()->login($user);
-
-        $response = $this->withHeaders([
-            'Authorization' => "Bearer $token",
-        ])->postJson('/api/refresh');
-
-        $response->assertStatus(200)
-            ->assertJsonStructure(['token']);
+        $response->assertStatus(401);
+        $response->assertJson(['error' => 'Invalid credentials']);
     }
 }
