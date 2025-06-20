@@ -1,7 +1,7 @@
 <p align="center">
 <img src="https://res.cloudinary.com/dgbngcvkl/image/upload/v1747036873/NextMovie_logo_letras_y_icono_axjmma.png" alt="NextMovie Logo">
 </p>
-
+ 
 <h1>🎬 NextMovie - Your Movie & Series Manager Platform 🍿</h1>
 
 NextMovie is a **full-stack web application platform** that allows users to manage their favorite movies and TV shows, including functionalities such as user management, personalized lists, and recommendations.
