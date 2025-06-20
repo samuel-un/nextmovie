@@ -6,27 +6,26 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
-    {
-        Schema::create('movies', function (Blueprint $table) {
-			$table->bigIncrements('id_tmdb');
+	/**
+	 * Run the migrations.
+	 */
+	public function up(): void
+	{
+		Schema::create('movies', function (Blueprint $table) {
+			$table->unsignedBigInteger('id_tmdb')->primary();
 			$table->string('title');
-			$table->enum('type', ['movie', 'series']);
+			$table->enum('type', ['movie', 'series'])->default('movie');
 			$table->string('poster_url')->nullable();
 			$table->date('release_date')->nullable();
 			$table->timestamps();
 		});
-		
-    }
+	}
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('movies');
-    }
+	/**
+	 * Reverse the migrations.
+	 */
+	public function down(): void
+	{
+		Schema::dropIfExists('movies');
+	}
 };

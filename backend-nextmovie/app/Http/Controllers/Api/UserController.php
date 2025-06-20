@@ -9,37 +9,32 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
-
 class UserController extends Controller
 {
-	// Obtener todos los usuarios (puedes limitarlo por roles si deseas)
 	public function index()
 	{
 		return response()->json(User::all());
 	}
 
-	// Mostrar datos de un solo usuario
 	public function show($id)
 	{
 		$user = User::findOrFail($id);
 		return response()->json($user);
 	}
 
-	// Eliminar usuario
 	public function destroy($id)
 	{
 		$user = User::findOrFail($id);
 		$user->delete();
 
-		return response()->json(['message' => 'Usuario eliminado correctamente']);
+		return response()->json(['message' => 'User successfully deleted']);
 	}
 
-	// Actualizar perfil del usuario
 	public function update(Request $request, $id)
 	{
 		$authUser = auth()->user();
 		if ((int)$authUser->id !== (int)$id) {
-			return response()->json(['message' => 'No autorizado'], 403);
+			return response()->json(['message' => 'Unauthorized'], 403);
 		}
 
 		$user = User::findOrFail($id);
@@ -53,7 +48,7 @@ class UserController extends Controller
 
 		if (!empty($validated['new_password'])) {
 			if (empty($validated['current_password']) || !Hash::check($validated['current_password'], $user->password)) {
-				return response()->json(['message' => 'La contraseña actual es incorrecta.'], 422);
+				return response()->json(['message' => 'Current password is incorrect.'], 422);
 			}
 			$user->password = bcrypt($validated['new_password']);
 		}
@@ -68,7 +63,7 @@ class UserController extends Controller
 		$user->save();
 
 		return response()->json([
-			'message' => 'Perfil actualizado correctamente',
+			'message' => 'Profile successfully updated',
 			'user' => [
 				'id' => $user->id,
 				'name' => $user->name,
@@ -81,10 +76,26 @@ class UserController extends Controller
 	{
 		$authUser = auth()->user();
 		if ((int)$authUser->id !== (int)$id) {
-			return response()->json(['message' => 'No autorizado'], 403);
+			return response()->json(['message' => 'Unauthorized'], 403);
 		}
 
-		// Cargamos listas con sus items y los movies relacionados
+		// Nombres de listas predeterminadas
+		$defaultLists = [
+			'Watched movies',
+			'Watched series',
+			'Movies to watch',
+			'Series to watch',
+		];
+
+		// Crear las listas predeterminadas si no existen
+		foreach ($defaultLists as $listName) {
+			\App\Models\UserList::firstOrCreate(
+				['user_id' => $id, 'name' => $listName],
+				['description' => "Lista predeterminada: $listName"]
+			);
+		}
+
+		// Recargar el usuario con listas y items
 		$user = User::with('lists.items.movie')->findOrFail($id);
 
 		$lists = $user->lists->map(function ($list) {
@@ -94,26 +105,28 @@ class UserController extends Controller
 				'items' => $list->items->map(function ($item) {
 					return [
 						'id' => $item->id,
+						'tmdbId' => $item->movie ? $item->movie->id_tmdb : null,
 						'title' => $item->movie ? $item->movie->title : null,
 						'poster' => $item->movie ? $item->movie->poster_url : null,
-						'media_type' => $item->movie ? $item->movie->media_type : null,
+						'media_type' => $item->movie ? $item->movie->type : null,
 					];
 				}),
 			];
 		});
 
+
 		$total_hours = $user->lists
 			->flatMap(fn($list) => $list->items)
-			->sum(fn($item) => $item->movie ? $item->movie->duration : 0);
+			->sum(fn($item) => $item->movie ? ($item->movie->duration ?? 0) : 0);
 
 		$total_movies = $user->lists
 			->flatMap(fn($list) => $list->items)
-			->filter(fn($item) => $item->movie && $item->movie->media_type === 'movie')
+			->filter(fn($item) => $item->movie && $item->movie->type === 'movie')
 			->count();
 
 		$total_series = $user->lists
 			->flatMap(fn($list) => $list->items)
-			->filter(fn($item) => $item->movie && $item->movie->media_type === 'tv')
+			->filter(fn($item) => $item->movie && $item->movie->type === 'series')
 			->count();
 
 		return response()->json([

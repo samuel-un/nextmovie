@@ -6,30 +6,24 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
-    {
-        Schema::create('comments', function (Blueprint $table) {
+	public function up(): void
+	{
+		Schema::create('comments', function (Blueprint $table) {
 			$table->bigIncrements('id');
 			$table->unsignedBigInteger('user_id');
 			$table->unsignedBigInteger('movie_id');
 			$table->text('comment_text');
-			$table->timestamp('commented_at')->nullable();
+			$table->float('comment_rating')->nullable();
+			$table->timestamp('commented_at')->nullable(); // Asegura que sea 'timestamp' y nullable
 			$table->timestamps();
-		
+
 			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 			$table->foreign('movie_id')->references('id_tmdb')->on('movies')->onDelete('cascade');
 		});
-		
-    }
+	}
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('comments');
-    }
+	public function down(): void
+	{
+		Schema::dropIfExists('comments');
+	}
 };

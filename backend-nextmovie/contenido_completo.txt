@@ -1,0 +1,1118 @@
+]633;E;for dir in app/Http/Controllers/Api app/Models database/migrations\x3b do   echo "======================="\x3b   echo "Ì≥Å Directorio: $dir"\x3b   echo "======================="\x3b   for file in "$dir"/*.php\x3b do     echo ""\x3b     echo "----- Archivo: $file -----"\x3b     cat "$file"\x3b     echo ""\x3b   done\x3b done > contenido_completo.txt;28f2418e-8ffb-4c9d-a089-5350cb5e94e6]633;C=======================
+Ì≥Å Directorio: app/Http/Controllers/Api
+=======================
+
+----- Archivo: app/Http/Controllers/Api/AuthController.php -----
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\User;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
+
+class AuthController extends Controller
+{
+    public function register(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        $token = JWTAuth::fromUser($user);
+
+        return response()->json([
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ],
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => JWTAuth::factory()->getTTL() * 60,
+            'message' => 'User created and authenticated successfully',
+        ], 201);
+    }
+
+    public function login(Request $request)
+    {
+        $credentials = $request->only('email', 'password');
+
+        if (!$token = JWTAuth::attempt($credentials)) {
+            return response()->json(['error' => 'Invalid credentials'], 401);
+        }
+
+        $user = auth()->user();
+
+        return response()->json([
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ],
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => JWTAuth::factory()->getTTL() * 60,
+            'message' => 'Login successful',
+        ]);
+    }
+
+    public function logout()
+    {
+        try {
+            JWTAuth::invalidate(JWTAuth::getToken());
+            return response()->json(['message' => 'Logout successful']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Could not log out', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function me()
+    {
+        return response()->json(auth()->user());
+    }
+}
+
+
+----- Archivo: app/Http/Controllers/Api/CommentController.php -----
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\Comment;
+use Illuminate\Http\Request;
+
+class CommentController extends Controller
+{
+    public function index()
+    {
+        return Comment::all();
+    }
+
+    public function show($id)
+    {
+        return Comment::findOrFail($id);
+    }
+
+    public function store(Request $request)
+    {
+        $comment = Comment::create($request->all());
+        return response()->json($comment, 201);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $comment = Comment::findOrFail($id);
+        $comment->update($request->all());
+        return response()->json($comment, 200);
+    }
+
+    public function destroy($id)
+    {
+        Comment::destroy($id);
+        return response()->json(null, 204);
+    }
+
+	public function getCommentsByMovie($movie_id)
+{
+    $comments = Comment::with('user')
+        ->where('movie_id', $movie_id)
+        ->orderBy('commented_at', 'desc')
+        ->get();
+
+    return response()->json($comments, 200);
+}
+
+}
+
+----- Archivo: app/Http/Controllers/Api/MovieController.php -----
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\Movie;
+use Illuminate\Http\Request;
+
+class MovieController extends Controller
+{
+    public function index()
+    {
+        return Movie::all();
+    }
+
+    public function show($id)
+    {
+        return Movie::findOrFail($id);
+    }
+
+    public function store(Request $request)
+    {
+        $movie = Movie::create($request->all());
+        return response()->json($movie, 201);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $movie = Movie::findOrFail($id);
+        $movie->update($request->all());
+        return response()->json($movie, 200);
+    }
+
+    public function destroy($id)
+    {
+        Movie::destroy($id);
+        return response()->json(null, 204);
+    }
+}
+
+----- Archivo: app/Http/Controllers/Api/RatingController.php -----
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\Rating;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+
+class RatingController extends Controller
+{
+    public function index()
+    {
+        return Rating::all();
+    }
+
+    public function show($id)
+    {
+        return Rating::findOrFail($id);
+    }
+
+    public function store(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'user_id' => 'required|exists:users,id',
+                'movie_id' => 'required|exists:movies,id_tmdb',
+                'score' => 'required|integer|min:1|max:5',
+                'rated_at' => 'nullable|date',
+            ]);
+
+            if (!empty($validated['rated_at'])) {
+                // Convierte la fecha a formato MySQL compatible
+                $validated['rated_at'] = date('Y-m-d H:i:s', strtotime($validated['rated_at']));
+            }
+
+            $rating = Rating::create($validated);
+            return response()->json($rating, 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            Log::error('Error creating rating: ' . $e->getMessage());
+            return response()->json(['error' => 'Internal Server Error'], 500);
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        $rating = Rating::findOrFail($id);
+        $rating->update($request->all());
+        return response()->json($rating, 200);
+    }
+
+    public function destroy($id)
+    {
+        Rating::destroy($id);
+        return response()->json(null, 204);
+    }
+}
+
+----- Archivo: app/Http/Controllers/Api/UserController.php -----
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Models\ListModel;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+
+class UserController extends Controller
+{
+	public function index()
+	{
+		return response()->json(User::all());
+	}
+
+	public function show($id)
+	{
+		$user = User::findOrFail($id);
+		return response()->json($user);
+	}
+
+	public function destroy($id)
+	{
+		$user = User::findOrFail($id);
+		$user->delete();
+
+		return response()->json(['message' => 'User successfully deleted']);
+	}
+
+	public function update(Request $request, $id)
+	{
+		$authUser = auth()->user();
+		if ((int)$authUser->id !== (int)$id) {
+			return response()->json(['message' => 'Unauthorized'], 403);
+		}
+
+		$user = User::findOrFail($id);
+
+		$validated = $request->validate([
+			'name' => 'sometimes|string|max:255',
+			'email' => 'sometimes|email|max:255|unique:users,email,' . $user->id,
+			'current_password' => 'nullable|string',
+			'new_password' => 'nullable|string|min:6',
+		]);
+
+		if (!empty($validated['new_password'])) {
+			if (empty($validated['current_password']) || !Hash::check($validated['current_password'], $user->password)) {
+				return response()->json(['message' => 'Current password is incorrect.'], 422);
+			}
+			$user->password = bcrypt($validated['new_password']);
+		}
+
+		if (isset($validated['name'])) {
+			$user->name = $validated['name'];
+		}
+		if (isset($validated['email'])) {
+			$user->email = $validated['email'];
+		}
+
+		$user->save();
+
+		return response()->json([
+			'message' => 'Profile successfully updated',
+			'user' => [
+				'id' => $user->id,
+				'name' => $user->name,
+				'email' => $user->email,
+			]
+		]);
+	}
+
+	public function profileData($id)
+	{
+		$authUser = auth()->user();
+		if ((int)$authUser->id !== (int)$id) {
+			return response()->json(['message' => 'Unauthorized'], 403);
+		}
+
+		// Nombres de listas predeterminadas
+		$defaultLists = [
+			'Watched movies',
+			'Watched series',
+			'Movies to watch',
+			'Series to watch',
+		];
+
+		// Crear las listas predeterminadas si no existen
+		foreach ($defaultLists as $listName) {
+			\App\Models\UserList::firstOrCreate(
+				['user_id' => $id, 'name' => $listName],
+				['description' => "Lista predeterminada: $listName"]
+			);
+		}
+
+		// Recargar el usuario con listas y items
+		$user = User::with('lists.items.movie')->findOrFail($id);
+
+		$lists = $user->lists->map(function ($list) {
+			return [
+				'id' => $list->id,
+				'name' => $list->name,
+				'items' => $list->items->map(function ($item) {
+					return [
+						'id' => $item->id,
+						'tmdbId' => $item->movie ? $item->movie->id_tmdb : null,
+						'title' => $item->movie ? $item->movie->title : null,
+						'poster' => $item->movie ? $item->movie->poster_url : null,
+						'media_type' => $item->movie ? $item->movie->type : null,
+					];
+				}),
+			];
+		});
+
+
+		$total_hours = $user->lists
+			->flatMap(fn($list) => $list->items)
+			->sum(fn($item) => $item->movie ? ($item->movie->duration ?? 0) : 0);
+
+		$total_movies = $user->lists
+			->flatMap(fn($list) => $list->items)
+			->filter(fn($item) => $item->movie && $item->movie->type === 'movie')
+			->count();
+
+		$total_series = $user->lists
+			->flatMap(fn($list) => $list->items)
+			->filter(fn($item) => $item->movie && $item->movie->type === 'series')
+			->count();
+
+		return response()->json([
+			'user' => [
+				'id' => $user->id,
+				'name' => $user->name,
+				'email' => $user->email,
+			],
+			'lists' => $lists,
+			'stats' => [
+				'total_hours' => $total_hours,
+				'total_movies' => $total_movies,
+				'total_series' => $total_series,
+			],
+		]);
+	}
+}
+
+
+----- Archivo: app/Http/Controllers/Api/UserListController.php -----
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\UserList;
+use Illuminate\Http\Request;
+
+class UserListController extends Controller
+{
+    public function index()
+    {
+        return UserList::all();
+    }
+
+    public function show($id)
+    {
+        return UserList::findOrFail($id);
+    }
+
+    public function store(Request $request)
+    {
+        $list = UserList::create($request->all());
+        return response()->json($list, 201);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $list = UserList::findOrFail($id);
+        $list->update($request->all());
+        return response()->json($list, 200);
+    }
+
+    public function destroy($id)
+    {
+        UserList::destroy($id);
+        return response()->json(null, 204);
+    }
+}
+
+----- Archivo: app/Http/Controllers/Api/UserListItemController.php -----
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\UserListItem;
+use App\Models\Movie;
+use Illuminate\Http\Request;
+
+class UserListItemController extends Controller
+{
+	public function index()
+	{
+		return UserListItem::all();
+	}
+
+	public function show($id)
+	{
+		return UserListItem::findOrFail($id);
+	}
+
+	public function store(Request $request)
+	{
+		$request->validate([
+			'list_id' => 'required|exists:user_lists,id',
+			'movie_id' => 'required|integer',
+			'title' => 'required|string|max:255',
+			'type' => 'required|in:movie,series',  // <-- valida el tipo
+		]);
+
+		Movie::updateOrCreate(
+			['id_tmdb' => $request->movie_id],
+			[
+				'title' => $request->title ?? 'T√≠tulo desconocido',
+				'type' => $request->type,  // <-- guarda el type correctamente
+			]
+		);
+
+		$exists = UserListItem::where('list_id', $request->list_id)
+			->where('movie_id', $request->movie_id)
+			->exists();
+
+		if ($exists) {
+			return response()->json([
+				'error' => 'La pel√≠cula ya est√° en la lista'
+			], 409);
+		}
+
+		$item = UserListItem::create([
+			'list_id' => $request->list_id,
+			'movie_id' => $request->movie_id,
+			'title' => $request->title,
+			'added_at' => now(),
+		]);
+
+		return response()->json($item, 201);
+	}
+
+	public function update(Request $request, $id)
+	{
+		$item = UserListItem::findOrFail($id);
+		$item->update($request->all());
+		return response()->json($item, 200);
+	}
+
+	public function destroy($id)
+	{
+		UserListItem::destroy($id);
+		return response()->json(null, 204);
+	}
+}
+
+=======================
+Ì≥Å Directorio: app/Models
+=======================
+
+----- Archivo: app/Models/Comment.php -----
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class Comment extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'movie_id',
+        'comment_text',
+        'commented_at',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function movie()
+    {
+        return $this->belongsTo(Movie::class, 'movie_id', 'id_tmdb');
+    }
+}
+
+----- Archivo: app/Models/Movie.php -----
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class Movie extends Model
+{
+	use HasFactory;
+
+	protected $primaryKey = 'id_tmdb';
+	public $incrementing = false;
+	protected $keyType = 'int';
+
+	protected $fillable = ['id_tmdb', 'title', 'type', 'poster_url', 'release_date'];
+
+	public function ratings()
+	{
+		return $this->hasMany(Rating::class, 'movie_id', 'id_tmdb');
+	}
+
+	public function comments()
+	{
+		return $this->hasMany(Comment::class, 'movie_id', 'id_tmdb');
+	}
+
+	public function userListItems()
+	{
+		return $this->hasMany(UserListItem::class, 'movie_id', 'id_tmdb');
+	}
+}
+
+
+----- Archivo: app/Models/Rating.php -----
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class Rating extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'movie_id',
+        'score',
+        'rated_at',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function movie()
+    {
+        return $this->belongsTo(Movie::class, 'movie_id', 'id_tmdb');
+    }
+}
+
+----- Archivo: app/Models/User.php -----
+<?php
+
+namespace App\Models;
+
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
+
+class User extends Authenticatable implements JWTSubject
+{
+	use HasFactory, Notifiable;
+
+	protected $fillable = [
+		'name',
+		'email',
+		'password',
+		'role',
+		'registration_date',
+	];
+
+	protected $hidden = [
+		'password',
+		'remember_token',
+	];
+
+	// JWTSubject methods
+	public function getJWTIdentifier()
+	{
+		return $this->getKey();
+	}
+
+	public function getJWTCustomClaims()
+	{
+		return [];
+	}
+
+	// Relaciones
+	public function ratings()
+	{
+		return $this->hasMany(Rating::class);
+	}
+
+	public function comments()
+	{
+		return $this->hasMany(Comment::class);
+	}
+
+	public function lists()
+	{
+		return $this->hasMany(UserList::class);
+	}
+
+	// M√©todo para crear listas predeterminadas
+	public function createDefaultLists()
+	{
+		$defaultLists = [
+			'Watched movies',
+			'Watched series',
+			'Movies to watch',
+			'Series to watch',
+		];
+
+		foreach ($defaultLists as $listName) {
+			$this->lists()->firstOrCreate([
+				'name' => $listName,
+			], [
+				'description' => "Lista predeterminada: $listName",
+			]);
+		}
+	}
+
+	// Hook del evento creado para crear listas autom√°ticamente
+	protected static function booted()
+	{
+		static::created(function ($user) {
+			$user->createDefaultLists();
+		});
+	}
+}
+
+
+----- Archivo: app/Models/UserList.php -----
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class UserList extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'name',
+        'description',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function items()
+    {
+        return $this->hasMany(UserListItem::class, 'list_id');
+    }
+}
+
+----- Archivo: app/Models/UserListItem.php -----
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class UserListItem extends Model
+{
+	use HasFactory;
+
+	protected $fillable = [
+		'list_id',
+		'movie_id',
+		'added_at',
+		'title'
+	];
+
+	public function list()
+	{
+		return $this->belongsTo(UserList::class, 'list_id');
+	}
+
+	public function movie()
+	{
+		return $this->belongsTo(Movie::class, 'movie_id', 'id_tmdb');
+	}
+}
+
+=======================
+Ì≥Å Directorio: database/migrations
+=======================
+
+----- Archivo: database/migrations/0001_01_01_000001_create_cache_table.php -----
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('cache', function (Blueprint $table) {
+            $table->string('key')->primary();
+            $table->mediumText('value');
+            $table->integer('expiration');
+        });
+
+        Schema::create('cache_locks', function (Blueprint $table) {
+            $table->string('key')->primary();
+            $table->string('owner');
+            $table->integer('expiration');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('cache');
+        Schema::dropIfExists('cache_locks');
+    }
+};
+
+
+----- Archivo: database/migrations/0001_01_01_000002_create_jobs_table.php -----
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('jobs', function (Blueprint $table) {
+            $table->id();
+            $table->string('queue')->index();
+            $table->longText('payload');
+            $table->unsignedTinyInteger('attempts');
+            $table->unsignedInteger('reserved_at')->nullable();
+            $table->unsignedInteger('available_at');
+            $table->unsignedInteger('created_at');
+        });
+
+        Schema::create('job_batches', function (Blueprint $table) {
+            $table->string('id')->primary();
+            $table->string('name');
+            $table->integer('total_jobs');
+            $table->integer('pending_jobs');
+            $table->integer('failed_jobs');
+            $table->longText('failed_job_ids');
+            $table->mediumText('options')->nullable();
+            $table->integer('cancelled_at')->nullable();
+            $table->integer('created_at');
+            $table->integer('finished_at')->nullable();
+        });
+
+        Schema::create('failed_jobs', function (Blueprint $table) {
+            $table->id();
+            $table->string('uuid')->unique();
+            $table->text('connection');
+            $table->text('queue');
+            $table->longText('payload');
+            $table->longText('exception');
+            $table->timestamp('failed_at')->useCurrent();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('jobs');
+        Schema::dropIfExists('job_batches');
+        Schema::dropIfExists('failed_jobs');
+    }
+};
+
+
+----- Archivo: database/migrations/2025_05_02_074052_create_movies_table.php -----
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+	/**
+	 * Run the migrations.
+	 */
+	public function up(): void
+	{
+		Schema::create('movies', function (Blueprint $table) {
+			$table->unsignedBigInteger('id_tmdb')->primary();
+			$table->string('title');
+			$table->enum('type', ['movie', 'series'])->default('movie');
+			$table->string('poster_url')->nullable();
+			$table->date('release_date')->nullable();
+			$table->timestamps();
+		});
+	}
+
+	/**
+	 * Reverse the migrations.
+	 */
+	public function down(): void
+	{
+		Schema::dropIfExists('movies');
+	}
+};
+
+
+----- Archivo: database/migrations/2025_05_02_074052_create_users_table.php -----
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateUsersTable extends Migration
+{
+    public function up()
+    {
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->string('role')->default('user');
+            $table->timestamp('registration_date')->useCurrent();
+            $table->rememberToken();
+            $table->timestamps();
+        });
+    }
+
+    public function down()
+    {
+        Schema::dropIfExists('users');
+    }
+}
+
+----- Archivo: database/migrations/2025_05_02_074053_create_comments_table.php -----
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('comments', function (Blueprint $table) {
+			$table->bigIncrements('id');
+			$table->unsignedBigInteger('user_id');
+			$table->unsignedBigInteger('movie_id');
+			$table->text('comment_text');
+			$table->timestamp('commented_at')->nullable();
+			$table->timestamps();
+		
+			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+			$table->foreign('movie_id')->references('id_tmdb')->on('movies')->onDelete('cascade');
+		});
+		
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('comments');
+    }
+};
+
+
+----- Archivo: database/migrations/2025_05_02_074053_create_ratings_table.php -----
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('ratings', function (Blueprint $table) {
+			$table->bigIncrements('id');
+			$table->unsignedBigInteger('user_id');
+			$table->unsignedBigInteger('movie_id');
+			$table->tinyInteger('score');
+			$table->timestamp('rated_at')->nullable();
+			$table->timestamps();
+		
+			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+			$table->foreign('movie_id')->references('id_tmdb')->on('movies')->onDelete('cascade');
+		});
+		
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('ratings');
+    }
+};
+
+----- Archivo: database/migrations/2025_05_02_074053_create_user_lists_table.php -----
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('user_lists', function (Blueprint $table) {
+			$table->bigIncrements('id');
+			$table->unsignedBigInteger('user_id');
+			$table->string('name');
+			$table->text('description')->nullable();
+			$table->timestamps();
+		
+			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+		});
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('user_lists');
+    }
+};
+
+----- Archivo: database/migrations/2025_05_02_074054_create_user_list_items_table.php -----
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+		Schema::create('user_list_items', function (Blueprint $table) {
+			$table->bigIncrements('id');
+			$table->unsignedBigInteger('list_id');
+			$table->unsignedBigInteger('movie_id');
+			$table->timestamp('added_at')->nullable();
+			$table->timestamps();
+		
+			$table->foreign('list_id')->references('id')->on('user_lists')->onDelete('cascade');
+			$table->foreign('movie_id')->references('id_tmdb')->on('movies')->onDelete('cascade');
+		});
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('user_list_items');
+    }
+};
+
+----- Archivo: database/migrations/2025_05_27_064452_create_sessions_table.php -----
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+
+    public function up(): void
+    {
+        Schema::create('sessions', function (Blueprint $table) {
+            $table->string('id')->primary();
+            $table->foreignId('user_id')->nullable()->index();
+            $table->string('ip_address', 45)->nullable();
+            $table->text('user_agent')->nullable();
+            $table->longText('payload');
+            $table->integer('last_activity')->index();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('sessions');
+    }
+};
+
+
+----- Archivo: database/migrations/2025_06_20_105351_add_title_to_user_list_items_table.php -----
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+	/**
+	 * Run the migrations.
+	 */
+	public function up(): void
+	{
+		Schema::table('user_list_items', function (Blueprint $table) {
+			$table->string('title')->after('movie_id');
+		});
+	}
+
+	/**
+	 * Reverse the migrations.
+	 */
+	public function down(): void
+	{
+		Schema::table('user_list_items', function (Blueprint $table) {
+			//
+		});
+	}
+};
+
