@@ -64,6 +64,7 @@ DB_PASSWORD=
 
 # Generate a new application key
 php artisan key:generate
+php artisan jwt:secret
 
 # Run migrations and seeders
 php artisan migrate --seed
@@ -108,8 +109,7 @@ The frontend code is available in the [`frontend-nextmovie`](./frontend-nextmovi
 cd frontend-nextmovie
 
 # Install dependencies
-npm install
-# or ( npm install --legacy-peer-deps )
+npm install --legacy-peer-deps
 
 # Start the development server
 npm run dev
