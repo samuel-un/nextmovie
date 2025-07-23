@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Instancia de axios con interceptor para JWT
 export const api = axios.create({
