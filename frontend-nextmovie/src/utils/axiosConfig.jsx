@@ -1,5 +1,6 @@
 import axios from "axios";
 
+// Root sin barras finales; por defecto localhost en dev
 const root = (import.meta.env.VITE_API_URL ?? "http://localhost:8000").replace(
 	/\/+$/,
 	""
@@ -7,15 +8,18 @@ const root = (import.meta.env.VITE_API_URL ?? "http://localhost:8000").replace(
 
 export const api = axios.create({
 	baseURL: `${root}/api`,
+	timeout: 20000,
+	headers: { "Content-Type": "application/json", Accept: "application/json" },
 });
 
+// Adjunta JWT si existe
 api.interceptors.request.use((config) => {
 	const token = localStorage.getItem("jwt_token");
 	if (token) config.headers.Authorization = `Bearer ${token}`;
-	config.headers["Content-Type"] = "application/json";
 	return config;
 });
 
+// Ayuda a detectar cuando estás pegando al front de Vercel por error
 api.interceptors.response.use(
 	(res) => res,
 	(err) => {
@@ -26,9 +30,13 @@ api.interceptors.response.use(
 		) {
 			return Promise.reject(
 				new Error(
-					"API_URL mal configurada: recibí HTML del frontend en vez de JSON"
+					"VITE_API_URL mal configurada: recibí HTML (frontend) en vez de JSON (backend)."
 				)
 			);
+		}
+		// Si el token vence, límpialo
+		if (err?.response?.status === 401) {
+			localStorage.removeItem("jwt_token");
 		}
 		return Promise.reject(err);
 	}
