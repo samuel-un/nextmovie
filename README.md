@@ -7,6 +7,14 @@
 NextMovie is a **full-stack web application platform** that allows users to manage their favorite movies and TV shows, including functionalities such as user management, personalized lists, and recommendations.
 
 This repository contains both the **Laravel-based backend** and the **React-based frontend**, designed to be robust, scalable, and user-friendly.
+---
+
+## 🚀 Live Deployment
+
+- **Frontend (Vercel):** [https://nextmovie-xi.vercel.app/](https://nextmovie-xi.vercel.app/)  
+- **Backend (Railway):** [https://nextmovie-production-b9b8.up.railway.app](https://nextmovie-production-b9b8.up.railway.app)  
+
+✅ The project is currently **finished and in production**.
 
 ---
 
