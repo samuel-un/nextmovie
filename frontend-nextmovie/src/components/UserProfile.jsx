@@ -115,21 +115,10 @@ export default function UserProfile() {
 		const fetchProfile = async () => {
 			if (!user?.id) return;
 			try {
-				const resp = await fetch(`/api/users/${user.id}/profile-data`, {
-					headers: {
-						Authorization: `Bearer ${localStorage.getItem(
-							"jwt_token"
-						)}`,
-						Accept: "application/json",
-					},
-				});
-				const ct = resp.headers.get("content-type") || "";
-				if (!resp.ok || !ct.includes("application/json")) {
-					const text = await resp.text();
-					console.error("Unexpected backend response:", text);
-					return;
-				}
-				const json = await resp.json();
+				// baseURL ya incluye /api, así que NO repitas /api aquí
+				const { data: json } = await api.get(
+					`/users/${user.id}/profile-data`
+				);
 				setData(json);
 
 				setForm((prev) => ({
@@ -139,6 +128,7 @@ export default function UserProfile() {
 				}));
 			} catch (err) {
 				console.error("Error fetching profile:", err);
+				setError("No se pudo cargar tu perfil.");
 			}
 		};
 		fetchProfile();
@@ -187,24 +177,14 @@ export default function UserProfile() {
 		}
 
 		try {
-			const resp = await fetch(`/api/users/${user.id}`, {
-				method: "PUT",
-				headers: {
-					"Content-Type": "application/json",
-					Accept: "application/json",
-					Authorization: `Bearer ${localStorage.getItem(
-						"jwt_token"
-					)}`,
-				},
-				body: JSON.stringify(form),
-			});
-			const result = await resp.json();
-
-			if (!resp.ok) {
+			const resp = await api.put(`/users/${user.id}`, form);
+			const result = resp.data;
+			if (resp.status < 200 || resp.status >= 300) {
 				await Swal.fire({
 					icon: "error",
 					title: "Error",
 					text: result?.message || "Failed to update.",
+
 					confirmButtonText: "OK",
 					customClass: {
 						popup: "swal2-popup",
@@ -234,7 +214,7 @@ export default function UserProfile() {
 			await Swal.fire({
 				icon: "error",
 				title: "Error",
-				text: "Network error.",
+				text: error?.response?.data?.message || "Network error.",
 				confirmButtonText: "OK",
 				customClass: {
 					popup: "swal2-popup",
@@ -271,6 +251,7 @@ export default function UserProfile() {
 	};
 
 	if (!user) return <p>Loading user...</p>;
+	if (error) return <p>{error}</p>; // <-- evita el bucle
 	if (!data) return <p>Loading profile...</p>;
 
 	const { stats, lists } = data;
