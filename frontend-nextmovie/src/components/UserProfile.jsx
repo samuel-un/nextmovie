@@ -117,7 +117,6 @@ export default function UserProfile() {
 		const fetchProfile = async () => {
 			if (!user?.id) return;
 			try {
-				// baseURL ya incluye /api, así que NO repitas /api aquí
 				const { data: json } = await api.get(
 					`/users/${user.id}/profile-data`
 				);
@@ -253,7 +252,7 @@ export default function UserProfile() {
 	};
 
 	if (!user) return <p>Loading user...</p>;
-	if (error) return <p>{error}</p>; // <-- evita el bucle
+	if (error) return <p>{error}</p>;
 	if (!data) return <p>Loading profile...</p>;
 
 	const { stats, lists } = data;

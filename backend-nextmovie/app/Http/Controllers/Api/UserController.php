@@ -79,7 +79,6 @@ class UserController extends Controller
 			return response()->json(['message' => 'Unauthorized'], 403);
 		}
 
-		// Nombres de listas predeterminadas
 		$defaultLists = [
 			'Watched movies',
 			'Watched series',
@@ -87,7 +86,6 @@ class UserController extends Controller
 			'Series to watch',
 		];
 
-		// Crear las listas predeterminadas si no existen
 		foreach ($defaultLists as $listName) {
 			\App\Models\UserList::firstOrCreate(
 				['user_id' => $id, 'name' => $listName],
@@ -95,7 +93,6 @@ class UserController extends Controller
 			);
 		}
 
-		// Recargar el usuario con listas y items
 		$user = User::with('lists.items.movie')->findOrFail($id);
 
 		$lists = $user->lists->map(function ($list) {

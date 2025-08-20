@@ -24,7 +24,6 @@ class User extends Authenticatable implements JWTSubject
 		'remember_token',
 	];
 
-	// JWTSubject methods
 	public function getJWTIdentifier()
 	{
 		return $this->getKey();
@@ -35,7 +34,6 @@ class User extends Authenticatable implements JWTSubject
 		return [];
 	}
 
-	// Relaciones
 	public function ratings()
 	{
 		return $this->hasMany(Rating::class);
@@ -51,7 +49,6 @@ class User extends Authenticatable implements JWTSubject
 		return $this->hasMany(UserList::class);
 	}
 
-	// Método para crear listas predeterminadas
 	public function createDefaultLists()
 	{
 		$defaultLists = [
@@ -70,7 +67,6 @@ class User extends Authenticatable implements JWTSubject
 		}
 	}
 
-	// Hook del evento creado para crear listas automáticamente
 	protected static function booted()
 	{
 		static::created(function ($user) {

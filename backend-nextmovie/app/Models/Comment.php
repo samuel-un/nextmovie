@@ -14,7 +14,7 @@ class Comment extends Model
 		'movie_id',
 		'comment_text',
 		'commented_at',
-		'comment_rating', // ← Nuevo campo
+		'comment_rating',
 	];
 
 	public function user()

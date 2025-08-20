@@ -7,11 +7,10 @@ import Footer from "./components/Footer";
 import Landing from "./components/Landing";
 import SearchResultsPage from "./components/SearchResultsPage";
 import UserProfile from "./components/UserProfile";
-import DetailPage from "./components/DetailPage"; // <-- Añadido
+import DetailPage from "./components/DetailPage";
 import { useAuthStore } from "./store/useAuthStore";
 import Loader from "./components/Loader";
 
-// Ruta pública: solo accesible si el usuario NO está logueado
 function PublicRoute({ children }) {
 	const user = useAuthStore((state) => state.user);
 	const loading = useAuthStore((state) => state.loading);
@@ -20,7 +19,6 @@ function PublicRoute({ children }) {
 	return user ? <Navigate to="/" replace /> : children;
 }
 
-// Ruta privada: solo accesible si el usuario ESTÁ logueado
 function PrivateRoute({ children }) {
 	const user = useAuthStore((state) => state.user);
 	const loading = useAuthStore((state) => state.loading);

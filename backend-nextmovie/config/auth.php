@@ -3,7 +3,7 @@
 return [
 
     'defaults' => [
-        'guard' => 'api', // Cambia a 'api' si tu API es el principal punto de acceso
+        'guard' => 'api',
         'passwords' => 'users',
     ],
 
@@ -13,7 +13,7 @@ return [
             'provider' => 'users',
         ],
         'api' => [
-            'driver' => 'jwt', // Cambiado de 'token' o 'sanctum' a 'jwt'
+            'driver' => 'jwt',
             'provider' => 'users',
         ],
     ],

@@ -32,11 +32,16 @@ This repository contains both the **Laravel-based backend** and the **React-base
     -   Postman (for API testing)
 
 -   **Frontend**:
+
     -   React (Vite)
     -   JavaScript (ES6+)
     -   CSS Modules
     -   Axios (API requests)
     -   React Router
+
+-   **Deployment**:
+    -   Frontend deployed on **Vercel** → [https://nextmovie-xi.vercel.app/](https://nextmovie-xi.vercel.app/)
+    -   Backend deployed on **Railway** → [https://nextmovie-production-b9b8.up.railway.app](https://nextmovie-production-b9b8.up.railway.app)
 
 ---
 

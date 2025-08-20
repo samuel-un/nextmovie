@@ -30,7 +30,6 @@ class RatingController extends Controller
             ]);
 
             if (!empty($validated['rated_at'])) {
-                // Convierte la fecha a formato MySQL compatible
                 $validated['rated_at'] = date('Y-m-d H:i:s', strtotime($validated['rated_at']));
             }
 

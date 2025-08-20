@@ -3,7 +3,6 @@ import { MemoryRouter } from "react-router-dom";
 import Header from "../Header";
 import { vi } from "vitest";
 
-// Mockear useAuthStore con vi.fn()
 vi.mock("../store/useAuthStore", () => ({
 	useAuthStore: vi.fn(() => ({
 		user: { name: "John Doe" },

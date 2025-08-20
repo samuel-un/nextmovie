@@ -25,14 +25,14 @@ class UserListItemController extends Controller
 			'list_id' => 'required|exists:user_lists,id',
 			'movie_id' => 'required|integer',
 			'title' => 'required|string|max:255',
-			'type' => 'required|in:movie,series',  // <-- valida el tipo
+			'type' => 'required|in:movie,series',
 		]);
 
 		Movie::updateOrCreate(
 			['id_tmdb' => $request->movie_id],
 			[
 				'title' => $request->title ?? 'Título desconocido',
-				'type' => $request->type,  // <-- guarda el type correctamente
+				'type' => $request->type,
 			]
 		);
 

@@ -14,7 +14,7 @@ return new class extends Migration
 			$table->unsignedBigInteger('movie_id');
 			$table->text('comment_text');
 			$table->float('comment_rating')->nullable();
-			$table->timestamp('commented_at')->nullable(); // Asegura que sea 'timestamp' y nullable
+			$table->timestamp('commented_at')->nullable();
 			$table->timestamps();
 
 			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
