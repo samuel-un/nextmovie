@@ -1,30 +1,39 @@
 import { create } from "zustand";
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL;
 
-// Instancia de axios con interceptor para JWT
+const ROOT = (import.meta.env.VITE_API_URL ?? "http://localhost:8000").replace(
+	/\/+$/,
+	""
+);
+
 export const api = axios.create({
-	baseURL: API_URL,
+	baseURL: `${ROOT}/api`,
+
 });
+
 
 api.interceptors.request.use((config) => {
 	const token = localStorage.getItem("jwt_token");
-	if (token) {
-		config.headers.Authorization = `Bearer ${token}`;
-	}
+	if (token) config.headers.Authorization = `Bearer ${token}`;
+	config.headers["Content-Type"] = "application/json";
 	return config;
 });
+
+const pickErr = (err, fallback) =>
+	err?.response?.data?.error ||
+	err?.response?.data?.message ||
+	err?.message ||
+	fallback;
 
 export const useAuthStore = create((set) => ({
 	user: null,
 	error: null,
-	loading: true, // iniciamos en true porque vamos a cargar sesión
+	loading: true,
 
-	// Nueva función para cargar usuario al arrancar
+
 	checkUser: async () => {
 		const token = localStorage.getItem("jwt_token");
-
 		if (!token) {
 			set({ user: null, loading: false });
 			return;
@@ -32,15 +41,15 @@ export const useAuthStore = create((set) => ({
 
 		set({ loading: true });
 		try {
-			const response = await api.get("/auth/me");
-			set({ user: response.data, loading: false });
-			return response.data;
+			const { data } = await api.get("/auth/me");
+			set({ user: data, loading: false });
+			return data;
 		} catch (err) {
 			localStorage.removeItem("jwt_token");
 			set({
 				user: null,
 				loading: false,
-				error: err.response?.data?.error || "Error de autenticación",
+				error: pickErr(err, "Error de autenticación"),
 			});
 		}
 	},
@@ -48,16 +57,17 @@ export const useAuthStore = create((set) => ({
 	register: async (formData) => {
 		set({ loading: true, error: null });
 		try {
-			const response = await api.post("/auth/register", formData);
-			localStorage.setItem("jwt_token", response.data.access_token);
+			const { data } = await api.post("/auth/register", formData);
+			if (data?.access_token)
+				localStorage.setItem("jwt_token", data.access_token);
 			set({
-				user: response.data.user,
+				user: data?.user ?? null,
 				loading: false,
 			});
-			return response.data.user;
+			return data?.user ?? null;
 		} catch (err) {
 			set({
-				error: err.response?.data?.error || "Error en el registro",
+				error: pickErr(err, "Error en el registro"),
 				loading: false,
 			});
 			throw err;
@@ -67,16 +77,17 @@ export const useAuthStore = create((set) => ({
 	login: async (email, password) => {
 		set({ error: null, loading: true });
 		try {
-			const response = await api.post("/auth/login", { email, password });
-			localStorage.setItem("jwt_token", response.data.access_token);
+			const { data } = await api.post("/auth/login", { email, password });
+			if (data?.access_token)
+				localStorage.setItem("jwt_token", data.access_token);
 			set({
-				user: response.data.user,
+				user: data?.user ?? null,
 				loading: false,
 			});
-			return response.data.user;
+			return data?.user ?? null;
 		} catch (err) {
 			set({
-				error: err.response?.data?.error || "Error en el login",
+				error: pickErr(err, "Error en el login"),
 				loading: false,
 			});
 			throw err;
@@ -91,7 +102,7 @@ export const useAuthStore = create((set) => ({
 			set({ user: null, loading: false });
 		} catch (err) {
 			set({
-				error: err.response?.data?.error || "Error en el logout",
+				error: pickErr(err, "Error en el logout"),
 				loading: false,
 			});
 		}
