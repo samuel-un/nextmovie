@@ -248,6 +248,15 @@ npx vitest run --coverage
 
 ---
 
+## 🚀 Deployment Status
+
+-   **Frontend (Vercel)** → [https://nextmovie-xi.vercel.app/](https://nextmovie-xi.vercel.app/)
+-   **Backend (Railway)** → [https://nextmovie-production-b9b8.up.railway.app](https://nextmovie-production-b9b8.up.railway.app)
+
+✅ The project is currently **finished and in production**.
+
+---
+
 <h1>📊 Methodology</h1>
 
 This project was developed using the **SCRUM** methodology and **Pair Programming** to ensure efficient collaboration and agile development.
