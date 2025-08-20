@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./UserProfile.css";
 import { useAuthStore } from "../store/useAuthStore";
 import Swal from "sweetalert2";
+import { api } from "../utils/axiosConfig"; // 👈 cliente axios con baseURL `${VITE_API_URL}/api`
 
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p";
 const TMDB_API_URL_MOVIE = "https://api.themoviedb.org/3/movie";
@@ -37,9 +38,6 @@ function PosterWithFallback({
 				return;
 			}
 			setLoading(true);
-			console.log(
-				`Fetching TMDb poster for "${title}" (type=${type}) with tmdbId: ${tmdbId}`
-			);
 			try {
 				const baseUrl =
 					type === "tv" ? TMDB_API_URL_TV : TMDB_API_URL_MOVIE;
@@ -66,6 +64,7 @@ function PosterWithFallback({
 			}
 		}
 		fetchPosterFromTMDb();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [poster_path, tmdbId, type]);
 
 	const handleError = async () => {
@@ -100,9 +99,17 @@ function PosterWithFallback({
 }
 
 export default function UserProfile() {
-	const [data, setData] = useState(null);
-	const user = useAuthStore((state) => state.user);
+	const {
+		user,
+		loading: authLoading,
+		checkUser,
+	} = useAuthStore((s) => ({
+		user: s.user,
+		loading: s.loading,
+		checkUser: s.checkUser,
+	}));
 
+	const [data, setData] = useState(null);
 	const [form, setForm] = useState({
 		name: "",
 		email: "",
@@ -110,35 +117,40 @@ export default function UserProfile() {
 		new_password: "",
 	});
 	const [saving, setSaving] = useState(false);
+	const [error, setError] = useState("");
 
+	// Garantiza sesión al montar
+	useEffect(() => {
+		checkUser().catch(() => {});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	// Carga datos de perfil cuando haya user
 	useEffect(() => {
 		const fetchProfile = async () => {
 			if (!user?.id) return;
 			try {
-				const resp = await fetch(`/api/users/${user.id}/profile-data`, {
-					headers: {
-						Authorization: `Bearer ${localStorage.getItem(
-							"jwt_token"
-						)}`,
-						Accept: "application/json",
-					},
-				});
-				const ct = resp.headers.get("content-type") || "";
-				if (!resp.ok || !ct.includes("application/json")) {
-					const text = await resp.text();
-					console.error("Unexpected backend response:", text);
-					return;
-				}
-				const json = await resp.json();
+				const { data: json } = await api.get(
+					`/users/${user.id}/profile-data`,
+					{
+						headers: { Accept: "application/json" },
+					}
+				);
 				setData(json);
-
 				setForm((prev) => ({
 					...prev,
-					name: json.user.name,
-					email: user.email,
+					name: json.user?.name ?? user.name ?? "",
+					email: json.user?.email ?? user.email ?? "",
 				}));
+				setError("");
 			} catch (err) {
 				console.error("Error fetching profile:", err);
+				setError(
+					err?.response?.data?.error ||
+						err?.response?.data?.message ||
+						err?.message ||
+						"Error loading profile"
+				);
 			}
 		};
 		fetchProfile();
@@ -174,12 +186,6 @@ export default function UserProfile() {
 						passwordErrors.map((e) => `<li>${e}</li>`).join("") +
 						"</ul>",
 					confirmButtonText: "OK",
-					customClass: {
-						popup: "swal2-popup",
-						title: "swal2-title",
-						content: "swal2-content",
-						confirmButton: "swal2-confirm",
-					},
 				});
 				setSaving(false);
 				return;
@@ -187,34 +193,16 @@ export default function UserProfile() {
 		}
 
 		try {
-			const resp = await fetch(`/api/users/${user.id}`, {
-				method: "PUT",
-				headers: {
-					"Content-Type": "application/json",
-					Accept: "application/json",
-					Authorization: `Bearer ${localStorage.getItem(
-						"jwt_token"
-					)}`,
-				},
-				body: JSON.stringify(form),
-			});
-			const result = await resp.json();
+			const { data: result, status } = await api.put(
+				`/users/${user.id}`,
+				form,
+				{
+					headers: { Accept: "application/json" },
+				}
+			);
 
-			if (!resp.ok) {
-				await Swal.fire({
-					icon: "error",
-					title: "Error",
-					text: result?.message || "Failed to update.",
-					confirmButtonText: "OK",
-					customClass: {
-						popup: "swal2-popup",
-						title: "swal2-title",
-						content: "swal2-content",
-						confirmButton: "swal2-confirm",
-					},
-				});
-				setSaving(false);
-				return;
+			if (status < 200 || status >= 300) {
+				throw new Error(result?.message || "Failed to update.");
 			}
 
 			await Swal.fire({
@@ -222,26 +210,19 @@ export default function UserProfile() {
 				title: "Success!",
 				text: "Profile updated successfully.",
 				confirmButtonText: "OK",
-				customClass: {
-					popup: "swal2-popup",
-					title: "swal2-title",
-					content: "swal2-content",
-					confirmButton: "swal2-confirm",
-				},
 			});
-		} catch (error) {
-			console.error(error);
+			setError("");
+		} catch (err) {
+			console.error(err);
 			await Swal.fire({
 				icon: "error",
 				title: "Error",
-				text: "Network error.",
+				text:
+					err?.response?.data?.message ||
+					err?.response?.data?.error ||
+					err?.message ||
+					"Network error.",
 				confirmButtonText: "OK",
-				customClass: {
-					popup: "swal2-popup",
-					title: "swal2-title",
-					content: "swal2-content",
-					confirmButton: "swal2-confirm",
-				},
 			});
 		} finally {
 			setSaving(false);
@@ -256,21 +237,14 @@ export default function UserProfile() {
 			showCancelButton: true,
 			confirmButtonText: "Yes, apply changes",
 			cancelButtonText: "Cancel",
-			customClass: {
-				popup: "swal2-popup",
-				title: "swal2-title",
-				content: "swal2-content",
-				confirmButton: "swal2-confirm",
-				cancelButton: "swal2-cancel",
-			},
 		}).then((result) => {
-			if (result.isConfirmed) {
-				handleSubmit();
-			}
+			if (result.isConfirmed) handleSubmit();
 		});
 	};
 
-	if (!user) return <p>Loading user...</p>;
+	if (authLoading && !user) return <p>Loading user...</p>;
+	if (error) return <p style={{ color: "tomato" }}>{error}</p>;
+	if (!user) return <p>There is no active session.</p>;
 	if (!data) return <p>Loading profile...</p>;
 
 	const { stats, lists } = data;
@@ -296,7 +270,7 @@ export default function UserProfile() {
 				key={i}
 				className="trophy"
 				src={`https://res.cloudinary.com/dgbngcvkl/image/upload/v1750229220/${t.file}`}
-				alt="trofeo"
+				alt="trophy"
 			/>
 		));
 
@@ -336,36 +310,29 @@ export default function UserProfile() {
 							<h3>Watched movies</h3>
 						</div>
 						<div className="media-grid">
-							{getList("watched movies").map(
-								(item) => (
-									console.log(item),
-									(
-										<a
-											key={item.movie_id || item.id}
-											href={`/detail-page/${"movie"}/${
-												item.tmdbId
-											}`}
-											className="poster-link"
-											tabIndex={0}
-											aria-label={`View details of ${
-												item.title || item.name
-											}`}
-											data-title={item.title || item.name}
-										>
-											<PosterWithFallback
-												title={item.title || item.name}
-												poster_path={item.poster}
-												tmdbId={
-													item.tmdbId ||
-													item.movie_id ||
-													item.id
-												}
-												alt={item.title || "Untitled"}
-											/>
-										</a>
-									)
-								)
-							)}
+							{getList("watched movies").map((item) => (
+								<a
+									key={item.movie_id || item.id}
+									href={`/detail-page/movie/${item.tmdbId}`}
+									className="poster-link"
+									tabIndex={0}
+									aria-label={`View details of ${
+										item.title || item.name
+									}`}
+									data-title={item.title || item.name}
+								>
+									<PosterWithFallback
+										title={item.title || item.name}
+										poster_path={item.poster}
+										tmdbId={
+											item.tmdbId ||
+											item.movie_id ||
+											item.id
+										}
+										alt={item.title || "Untitled"}
+									/>
+								</a>
+							))}
 						</div>
 					</div>
 
@@ -382,7 +349,7 @@ export default function UserProfile() {
 							{getList("watched series").map((item) => (
 								<a
 									key={item.id}
-									href={`/detail-page/${"tv"}/${item.tmdbId}`}
+									href={`/detail-page/tv/${item.tmdbId}`}
 									className="poster-link"
 									tabIndex={0}
 									aria-label={`View details of ${
@@ -417,9 +384,7 @@ export default function UserProfile() {
 							{getList("movies to watch").map((item) => (
 								<a
 									key={item.movie_id || item.id}
-									href={`/detail-page/${"movie"}/${
-										item.tmdbId
-									}`}
+									href={`/detail-page/movie/${item.tmdbId}`}
 									className="poster-link"
 									tabIndex={0}
 									aria-label={`View details of ${
@@ -455,7 +420,7 @@ export default function UserProfile() {
 							{getList("series to watch").map((item) => (
 								<a
 									key={item.id}
-									href={`/detail-page/${"tv"}/${item.tmdbId}`}
+									href={`/detail-page/tv/${item.tmdbId}`}
 									className="poster-link"
 									tabIndex={0}
 									aria-label={`View details of ${
