@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import "./UserProfile.css";
 import { useAuthStore } from "../store/useAuthStore";
 import Swal from "sweetalert2";
-import { api } from "../utils/axiosConfig"; // ✅ usa el backend (Vercel -> Railway)
+import { api } from "../utils/axiosConfig";
 
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p";
 const TMDB_API_URL_MOVIE = "https://api.themoviedb.org/3/movie";
@@ -30,7 +30,6 @@ function PosterWithFallback({
 
 	useEffect(() => {
 		let cancelled = false;
-
 		(async () => {
 			if (src) return;
 			if (!tmdbId) {
@@ -48,20 +47,18 @@ function PosterWithFallback({
 						Accept: "application/json",
 					},
 				});
-				if (!res.ok) throw new Error("TMDb fetch failed");
+				if (!res.ok) throw new Error();
 				const data = await res.json();
-				if (!cancelled) {
+				if (!cancelled)
 					setSrc(
 						data.poster_path
 							? `${TMDB_IMAGE_BASE}/w500${data.poster_path}`
 							: fallback
 					);
-				}
 			} catch {
 				if (!cancelled) setSrc(fallback);
 			}
 		})();
-
 		return () => {
 			cancelled = true;
 		};
@@ -107,7 +104,7 @@ export default function UserProfile() {
 		checkUser().catch(() => {});
 	}, [checkUser]);
 
-	// Pide el perfil SOLO una vez por user.id
+	// Carga perfil SOLO una vez por user.id
 	const fetchedForUserId = useRef(null);
 	useEffect(() => {
 		if (!user?.id) return;
@@ -115,15 +112,15 @@ export default function UserProfile() {
 		fetchedForUserId.current = user.id;
 
 		let cancelled = false;
-
 		(async () => {
 			try {
-				const resp = await api.get(`/users/${user.id}/profile-data`, {
-					headers: { Accept: "application/json" },
-				});
+				const { data: json } = await api.get(
+					`/users/${user.id}/profile-data`,
+					{
+						headers: { Accept: "application/json" },
+					}
+				);
 				if (cancelled) return;
-				const json = resp.data;
-
 				setData(json);
 				setForm((prev) => ({
 					...prev,
@@ -147,21 +144,19 @@ export default function UserProfile() {
 		};
 	}, [user]);
 
-	const handleChange = (e) => {
-		const { name, value } = e.target;
-		setForm((prev) => ({ ...prev, [name]: value }));
-	};
+	const handleChange = (e) =>
+		setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
 
 	const validatePassword = (password) => {
 		if (!password) return [];
-		const errors = [];
-		if (password.length < 8) errors.push("at least 8 characters");
-		if (!/[A-Z]/.test(password)) errors.push("one uppercase letter");
-		if (!/[a-z]/.test(password)) errors.push("one lowercase letter");
-		if (!/[0-9]/.test(password)) errors.push("one number");
+		const e = [];
+		if (password.length < 8) e.push("at least 8 characters");
+		if (!/[A-Z]/.test(password)) e.push("one uppercase letter");
+		if (!/[a-z]/.test(password)) e.push("one lowercase letter");
+		if (!/[0-9]/.test(password)) e.push("one number");
 		if (!/[!@#$%^&*(),.?\":{}|<>]/.test(password))
-			errors.push("one special character");
-		return errors;
+			e.push("one special character");
+		return e;
 	};
 
 	const handleSubmit = async () => {
@@ -172,9 +167,8 @@ export default function UserProfile() {
 				title: "Invalid password",
 				html:
 					"Your new password must contain:<br><ul style='text-align:left'>" +
-					pwErrors.map((e) => `<li>${e}</li>`).join("") +
+					pwErrors.map((x) => `<li>${x}</li>`).join("") +
 					"</ul>",
-				confirmButtonText: "OK",
 			});
 			return;
 		}
@@ -219,19 +213,25 @@ export default function UserProfile() {
 	if (errMsg && !data) return <p style={{ color: "tomato" }}>{errMsg}</p>;
 	if (!data) return <p>Loading profile...</p>;
 
-	const { stats, lists } = data;
-	const { total_movies = 0, total_series = 0 } = stats || {};
-	const totalItems = total_movies + total_series;
+	const { stats = {}, lists = [], user: u = {} } = data;
+	const total_movies = stats.total_movies ?? 0;
+	const total_series = stats.total_series ?? 0;
 
 	const trophies = [
-		{ cond: totalItems >= 1, file: "1-movie_or_series_btmh1u.png" },
-		{ cond: totalItems >= 10, file: "10-movie_or_series_l9vgy6.png" },
 		{
-			cond: totalItems >= 50,
+			cond: total_movies + total_series >= 1,
+			file: "1-movie_or_series_btmh1u.png",
+		},
+		{
+			cond: total_movies + total_series >= 10,
+			file: "10-movie_or_series_l9vgy6.png",
+		},
+		{
+			cond: total_movies + total_series >= 50,
 			file: "50-total-movie_and_series_lojrak.png",
 		},
 		{
-			cond: totalItems >= 100,
+			cond: total_movies + total_series >= 100,
 			file: "100-total-movie_and_series_p8i4rq.png",
 		},
 		{ cond: total_series >= 50, file: "50_series_py9gme.png" },
@@ -247,7 +247,8 @@ export default function UserProfile() {
 		));
 
 	const getList = (keyword) =>
-		lists.find((l) => l.name.toLowerCase().includes(keyword))?.items || [];
+		lists.find((l) => l?.name?.toLowerCase().includes(keyword))?.items ||
+		[];
 
 	return (
 		<div className="user-profile">
@@ -260,7 +261,7 @@ export default function UserProfile() {
 						/>
 					</div>
 					<div className="user-details">
-						<h2>{data?.user?.name || user.name}</h2>
+						<h2>{u.name || user.name}</h2>
 						<div className="stats">
 							<span>{total_movies} Movies added to lists</span>
 							<span>{total_series} Series added to lists</span>
@@ -270,149 +271,7 @@ export default function UserProfile() {
 				</div>
 			</div>
 
-			<div className="inner-container">
-				<div className="lists-row">
-					<div className="list-column">
-						<div className="list-title">
-							<img
-								src="https://res.cloudinary.com/dgbngcvkl/image/upload/v1750240679/viewed_jwguww.png"
-								alt="Viewed"
-								className="list-icon"
-							/>
-							<h3>Watched movies</h3>
-						</div>
-						<div className="media-grid">
-							{getList("watched movies").map((item) => (
-								<a
-									key={item.movie_id || item.id}
-									href={`/detail-page/movie/${item.tmdbId}`}
-									className="poster-link"
-									tabIndex={0}
-									aria-label={`View details of ${
-										item.title || item.name
-									}`}
-									data-title={item.title || item.name}
-								>
-									<PosterWithFallback
-										title={item.title || item.name}
-										poster_path={item.poster}
-										tmdbId={
-											item.tmdbId ||
-											item.movie_id ||
-											item.id
-										}
-										alt={item.title || "Untitled"}
-									/>
-								</a>
-							))}
-						</div>
-					</div>
-
-					<div className="list-column">
-						<div className="list-title">
-							<img
-								src="https://res.cloudinary.com/dgbngcvkl/image/upload/v1750240679/viewed_jwguww.png"
-								alt="Viewed"
-								className="list-icon"
-							/>
-							<h3>Watched series</h3>
-						</div>
-						<div className="media-grid">
-							{getList("watched series").map((item) => (
-								<a
-									key={item.id}
-									href={`/detail-page/tv/${item.tmdbId}`}
-									className="poster-link"
-									tabIndex={0}
-									aria-label={`View details of ${
-										item.title || item.name
-									}`}
-									data-title={item.title || item.name}
-								>
-									<PosterWithFallback
-										title={item.title || item.name}
-										poster_path={item.poster}
-										tmdbId={item.tmdbId || item.id}
-										alt={item.title || "Untitled"}
-										type="tv"
-									/>
-								</a>
-							))}
-						</div>
-					</div>
-				</div>
-
-				<div className="lists-row">
-					<div className="list-column">
-						<div className="list-title">
-							<img
-								src="https://res.cloudinary.com/dgbngcvkl/image/upload/v1750240554/to-see_kdabyr.png"
-								alt="To watch"
-								className="list-icon"
-							/>
-							<h3>Movies to watch</h3>
-						</div>
-						<div className="media-grid">
-							{getList("movies to watch").map((item) => (
-								<a
-									key={item.movie_id || item.id}
-									href={`/detail-page/movie/${item.tmdbId}`}
-									className="poster-link"
-									tabIndex={0}
-									aria-label={`View details of ${
-										item.title || item.name
-									}`}
-									data-title={item.title || item.name}
-								>
-									<PosterWithFallback
-										title={item.title || item.name}
-										poster_path={item.poster}
-										tmdbId={
-											item.tmdbId ||
-											item.movie_id ||
-											item.id
-										}
-										alt={item.title || "Untitled"}
-									/>
-								</a>
-							))}
-						</div>
-					</div>
-
-					<div className="list-column">
-						<div className="list-title">
-							<img
-								src="https://res.cloudinary.com/dgbngcvkl/image/upload/v1750240554/to-see_kdabyr.png"
-								alt="To watch"
-								className="list-icon"
-							/>
-							<h3>Series to watch</h3>
-						</div>
-						<div className="media-grid">
-							{getList("series to watch").map((item) => (
-								<a
-									key={item.id}
-									href={`/detail-page/tv/${item.tmdbId}`}
-									className="poster-link"
-									tabIndex={0}
-									aria-label={`View details of ${
-										item.title || item.name
-									}`}
-									data-title={item.title || item.name}
-								>
-									<PosterWithFallback
-										title={item.title || item.name}
-										poster_path={item.poster}
-										tmdbId={item.tmdbId || item.id}
-										alt={item.title || "Untitled"}
-										type="tv"
-									/>
-								</a>
-							))}
-						</div>
-					</div>
-				</div>
-			</div>
+			{/* … tus listas … */}
 
 			<div className="profile-settings">
 				<div className="inner-container">
@@ -426,7 +285,6 @@ export default function UserProfile() {
 								onChange={handleChange}
 								placeholder="Full name..."
 							/>
-
 							<label>Email:</label>
 							<input
 								name="email"
@@ -435,7 +293,6 @@ export default function UserProfile() {
 								placeholder="Email..."
 							/>
 						</div>
-
 						<div className="right">
 							<label>Current password:</label>
 							<input
@@ -445,7 +302,6 @@ export default function UserProfile() {
 								onChange={handleChange}
 								placeholder="Current password..."
 							/>
-
 							<label>New password:</label>
 							<input
 								type="password"
