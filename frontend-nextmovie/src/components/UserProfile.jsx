@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./UserProfile.css";
 import { useAuthStore } from "../store/useAuthStore";
 import Swal from "sweetalert2";
-import { api } from "../utils/axiosConfig"; // 👈 cliente axios con baseURL `${VITE_API_URL}/api`
+import { api } from "../utils/axiosConfig"; // ✅ usa el backend (Vercel -> Railway)
 
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p";
 const TMDB_API_URL_MOVIE = "https://api.themoviedb.org/3/movie";
@@ -27,17 +27,16 @@ function PosterWithFallback({
 			  }`
 			: null
 	);
-	const [loading, setLoading] = React.useState(false);
-	const [triedWiki, setTriedWiki] = React.useState(false);
 
-	React.useEffect(() => {
-		async function fetchPosterFromTMDb() {
+	useEffect(() => {
+		let cancelled = false;
+
+		(async () => {
 			if (src) return;
 			if (!tmdbId) {
-				setSrc(fallback);
+				if (!cancelled) setSrc(fallback);
 				return;
 			}
-			setLoading(true);
 			try {
 				const baseUrl =
 					type === "tv" ? TMDB_API_URL_TV : TMDB_API_URL_MOVIE;
@@ -51,40 +50,22 @@ function PosterWithFallback({
 				});
 				if (!res.ok) throw new Error("TMDb fetch failed");
 				const data = await res.json();
-				if (data.poster_path) {
-					setSrc(`${TMDB_IMAGE_BASE}/w500${data.poster_path}`);
-				} else {
-					setSrc(fallback);
+				if (!cancelled) {
+					setSrc(
+						data.poster_path
+							? `${TMDB_IMAGE_BASE}/w500${data.poster_path}`
+							: fallback
+					);
 				}
-			} catch (e) {
-				console.error("Error fetching poster from TMDb:", e);
-				setSrc(fallback);
-			} finally {
-				setLoading(false);
+			} catch {
+				if (!cancelled) setSrc(fallback);
 			}
-		}
-		fetchPosterFromTMDb();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [poster_path, tmdbId, type]);
+		})();
 
-	const handleError = async () => {
-		if (!triedWiki) {
-			setTriedWiki(true);
-			try {
-				const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(
-					title
-				)}`;
-				const res = await fetch(url);
-				if (!res.ok) throw new Error("No wiki");
-				const data = await res.json();
-				if (data.thumbnail && data.thumbnail.source) {
-					setSrc(data.thumbnail.source);
-					return;
-				}
-			} catch (e) {}
-		}
-		setSrc(fallback);
-	};
+		return () => {
+			cancelled = true;
+		};
+	}, [poster_path, tmdbId, type, src]);
 
 	return (
 		<img
@@ -92,7 +73,6 @@ function PosterWithFallback({
 			alt={alt || title || "Untitled"}
 			className="poster"
 			loading="lazy"
-			onError={handleError}
 			style={{ objectFit: "cover" }}
 		/>
 	);
@@ -117,43 +97,54 @@ export default function UserProfile() {
 		new_password: "",
 	});
 	const [saving, setSaving] = useState(false);
-	const [error, setError] = useState("");
+	const [errMsg, setErrMsg] = useState("");
 
-	// Garantiza sesión al montar
+	// Ejecuta checkUser SOLO una vez
+	const didInit = useRef(false);
 	useEffect(() => {
+		if (didInit.current) return;
+		didInit.current = true;
 		checkUser().catch(() => {});
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [checkUser]);
 
-	// Carga datos de perfil cuando haya user
+	// Pide el perfil SOLO una vez por user.id
+	const fetchedForUserId = useRef(null);
 	useEffect(() => {
-		const fetchProfile = async () => {
-			if (!user?.id) return;
+		if (!user?.id) return;
+		if (fetchedForUserId.current === user.id) return;
+		fetchedForUserId.current = user.id;
+
+		let cancelled = false;
+
+		(async () => {
 			try {
-				const { data: json } = await api.get(
-					`/users/${user.id}/profile-data`,
-					{
-						headers: { Accept: "application/json" },
-					}
-				);
+				const resp = await api.get(`/users/${user.id}/profile-data`, {
+					headers: { Accept: "application/json" },
+				});
+				if (cancelled) return;
+				const json = resp.data;
+
 				setData(json);
 				setForm((prev) => ({
 					...prev,
-					name: json.user?.name ?? user.name ?? "",
-					email: json.user?.email ?? user.email ?? "",
+					name: json?.user?.name ?? user.name ?? "",
+					email: json?.user?.email ?? user.email ?? "",
 				}));
-				setError("");
+				setErrMsg("");
 			} catch (err) {
-				console.error("Error fetching profile:", err);
-				setError(
+				if (cancelled) return;
+				const msg =
 					err?.response?.data?.error ||
-						err?.response?.data?.message ||
-						err?.message ||
-						"Error loading profile"
-				);
+					err?.response?.data?.message ||
+					err?.message ||
+					"Error loading profile";
+				setErrMsg(msg);
 			}
+		})();
+
+		return () => {
+			cancelled = true;
 		};
-		fetchProfile();
 	}, [user]);
 
 	const handleChange = (e) => {
@@ -162,6 +153,7 @@ export default function UserProfile() {
 	};
 
 	const validatePassword = (password) => {
+		if (!password) return [];
 		const errors = [];
 		if (password.length < 8) errors.push("at least 8 characters");
 		if (!/[A-Z]/.test(password)) errors.push("one uppercase letter");
@@ -173,47 +165,31 @@ export default function UserProfile() {
 	};
 
 	const handleSubmit = async () => {
-		setSaving(true);
-
-		if (form.new_password.trim() !== "") {
-			const passwordErrors = validatePassword(form.new_password);
-			if (passwordErrors.length > 0) {
-				await Swal.fire({
-					icon: "error",
-					title: "Invalid password",
-					html:
-						"Your new password must contain:<br><ul style='text-align:left'>" +
-						passwordErrors.map((e) => `<li>${e}</li>`).join("") +
-						"</ul>",
-					confirmButtonText: "OK",
-				});
-				setSaving(false);
-				return;
-			}
-		}
-
-		try {
-			const { data: result, status } = await api.put(
-				`/users/${user.id}`,
-				form,
-				{
-					headers: { Accept: "application/json" },
-				}
-			);
-
-			if (status < 200 || status >= 300) {
-				throw new Error(result?.message || "Failed to update.");
-			}
-
+		const pwErrors = validatePassword(form.new_password);
+		if (pwErrors.length) {
 			await Swal.fire({
-				icon: "success",
-				title: "Success!",
-				text: "Profile updated successfully.",
+				icon: "error",
+				title: "Invalid password",
+				html:
+					"Your new password must contain:<br><ul style='text-align:left'>" +
+					pwErrors.map((e) => `<li>${e}</li>`).join("") +
+					"</ul>",
 				confirmButtonText: "OK",
 			});
-			setError("");
+			return;
+		}
+
+		setSaving(true);
+		try {
+			await api.put(`/users/${user.id}`, form, {
+				headers: { Accept: "application/json" },
+			});
+			await Swal.fire({
+				icon: "success",
+				title: "Profile updated",
+				confirmButtonText: "OK",
+			});
 		} catch (err) {
-			console.error(err);
 			await Swal.fire({
 				icon: "error",
 				title: "Error",
@@ -221,34 +197,30 @@ export default function UserProfile() {
 					err?.response?.data?.message ||
 					err?.response?.data?.error ||
 					err?.message ||
-					"Network error.",
-				confirmButtonText: "OK",
+					"Failed to update.",
 			});
 		} finally {
 			setSaving(false);
 		}
 	};
 
-	const confirmAndSubmit = () => {
+	const confirmAndSubmit = () =>
 		Swal.fire({
 			title: "Are you sure?",
 			text: "Do you want to apply changes to your profile?",
 			icon: "warning",
 			showCancelButton: true,
-			confirmButtonText: "Yes, apply changes",
-			cancelButtonText: "Cancel",
-		}).then((result) => {
-			if (result.isConfirmed) handleSubmit();
-		});
-	};
+			confirmButtonText: "Yes, apply",
+		}).then((r) => r.isConfirmed && handleSubmit());
 
+	// Estados
 	if (authLoading && !user) return <p>Loading user...</p>;
-	if (error) return <p style={{ color: "tomato" }}>{error}</p>;
-	if (!user) return <p>There is no active session.</p>;
+	if (!user) return <p>No active session.</p>;
+	if (errMsg && !data) return <p style={{ color: "tomato" }}>{errMsg}</p>;
 	if (!data) return <p>Loading profile...</p>;
 
 	const { stats, lists } = data;
-	const { total_movies, total_series } = stats;
+	const { total_movies = 0, total_series = 0 } = stats || {};
 	const totalItems = total_movies + total_series;
 
 	const trophies = [
@@ -288,7 +260,7 @@ export default function UserProfile() {
 						/>
 					</div>
 					<div className="user-details">
-						<h2>{user.name}</h2>
+						<h2>{data?.user?.name || user.name}</h2>
 						<div className="stats">
 							<span>{total_movies} Movies added to lists</span>
 							<span>{total_series} Series added to lists</span>
