@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./UserProfile.css";
 import { useAuthStore } from "../store/useAuthStore";
 import Swal from "sweetalert2";
+import { api } from "../store/useAuthStore";
 
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p";
 const TMDB_API_URL_MOVIE = "https://api.themoviedb.org/3/movie";
@@ -102,6 +103,7 @@ function PosterWithFallback({
 export default function UserProfile() {
 	const [data, setData] = useState(null);
 	const user = useAuthStore((state) => state.user);
+	const [error, setError] = useState(null);
 
 	const [form, setForm] = useState({
 		name: "",
